@@ -1,0 +1,42 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const SESSION_DURATION_SECONDS = 60 * 60 * 24; // 24 hours
+
+export async function GET(request: NextRequest) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+
+  if (code) {
+    const supabase = createSupabaseServerClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const isFirstLogin =
+        user?.created_at &&
+        user?.last_sign_in_at &&
+        Math.abs(
+          new Date(user.last_sign_in_at).getTime() -
+          new Date(user.created_at).getTime()
+        ) < 60_000;
+
+      const destination = isFirstLogin
+        ? `${origin}/setup?welcome=true`
+        : `${origin}/`;
+
+      const response = NextResponse.redirect(destination);
+      response.cookies.set("vld_session_expires_at", String(expiresAt), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: SESSION_DURATION_SECONDS,
+      });
+      return response;
+    }
+  }
+
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+}

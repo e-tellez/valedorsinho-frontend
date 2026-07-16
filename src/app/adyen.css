@@ -1,0 +1,310 @@
+/* Adyen page wrapper - Industrial Technical */
+.adyen-page-wrapper {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #f8f9fa;
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 20px;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.adyen-page-wrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.adyen-page-wrapper > * {
+  position: relative;
+  z-index: 2;
+}
+
+.dark .adyen-page-wrapper {
+  background-color: #050810;
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .adyen-page-wrapper::before {
+  opacity: 0.025;
+}
+
+/* JSON syntax highlighting - Industrial palette */
+.json-key    { color: #00d4ff; font-weight: 600; }
+.json-string { color: #00ff88; }
+.json-number { color: #ff6b9d; }
+.json-bool   { color: #ffaa00; }
+.json-null   { color: #a78bfa; opacity: 0.7; }
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.arrow-animated {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: dash 0.6s ease forwards;
+}
+
+.lane-active {
+  animation: flow-pulse 2s ease-in-out infinite;
+}
+
+.json-boolean { color: #fcd34d; }
+.json-punctuation { color: #94a3b8; }
+
+.phase-discovery { color: #00d4ff; font-weight: 700; }
+.phase-catalog { color: #00ff88; font-weight: 700; }
+.phase-negotiation { color: #c084fc; font-weight: 700; }
+.phase-payment { color: #ffaa00; font-weight: 700; }
+.phase-checkout { color: #ff6b9d; font-weight: 700; }
+.phase-order { color: #00d4ff; font-weight: 700; }
+
+.phase-bg-discovery { background: rgba(0, 212, 255, 0.08); border: 2px solid rgba(0, 212, 255, 0.3); }
+.phase-bg-catalog { background: rgba(0, 255, 136, 0.08); border: 2px solid rgba(0, 255, 136, 0.3); }
+.phase-bg-negotiation { background: rgba(192, 132, 252, 0.08); border: 2px solid rgba(192, 132, 252, 0.3); }
+.phase-bg-payment { background: rgba(255, 170, 0, 0.08); border: 2px solid rgba(255, 170, 0, 0.3); }
+.phase-bg-checkout { background: rgba(255, 107, 157, 0.08); border: 2px solid rgba(255, 107, 157, 0.3); }
+.phase-bg-order { background: rgba(0, 212, 255, 0.08); border: 2px solid rgba(0, 212, 255, 0.3); }
+
+/* ============================================================ */
+/* Adyen Drop-in / Components — Dark mode overrides             */
+/* Adyen SDK CSS is loaded dynamically; .dark prefix ensures    */
+/* higher specificity so our rules win in the cascade.          */
+/* ============================================================ */
+
+/* Payment method list items (Drop-in) */
+.dark .adyen-checkout__payment-method {
+  background-color: #0a0f1e !important;
+  border: 2px solid #1a2332 !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .adyen-checkout__payment-method:hover {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.1) !important;
+}
+
+.dark .adyen-checkout__payment-method--selected {
+  background-color: rgba(0, 212, 255, 0.05) !important;
+  border: 2px solid #00d4ff !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15) !important;
+}
+
+.dark .adyen-checkout__payment-method__header {
+  border-bottom-color: #334155 !important;
+}
+
+.dark .adyen-checkout__payment-method__name,
+.dark .adyen-checkout__payment-method__name--selected {
+  color: #f1f5f9 !important;
+}
+
+.dark .adyen-checkout__payment-method__details {
+  border-top-color: #334155 !important;
+}
+
+/* Input field outer wrappers (surrounds iframes and text inputs) */
+.dark .adyen-checkout__input {
+  background-color: #0a0f1e !important;
+  border: 2px solid #1a2332 !important;
+  color: #e6edf3 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .adyen-checkout__input:hover {
+  border-color: #2a3342 !important;
+}
+
+.dark .adyen-checkout__input--focus,
+.dark .adyen-checkout__input:focus-within {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12) !important;
+}
+
+.dark .adyen-checkout__input--error,
+.dark .adyen-checkout__input--error:hover {
+  border-color: #ef4444 !important;
+}
+
+/* Regular HTML inputs inside Adyen wrappers (e.g. Name on card) */
+.dark .adyen-checkout__input > input,
+.dark .adyen-checkout__input input {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .adyen-checkout__input > input::placeholder,
+.dark .adyen-checkout__input input::placeholder {
+  color: #64748b !important;
+}
+
+/* Labels */
+.dark .adyen-checkout__label__text {
+  color: #8b949e !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.dark .adyen-checkout__label--focused .adyen-checkout__label__text {
+  color: #00d4ff !important;
+}
+
+/* Helper / instruction text */
+.dark .adyen-checkout__helper-text,
+.dark .adyen-checkout-form-instruction {
+  color: #64748b !important;
+}
+
+/* Error text */
+.dark .adyen-checkout__error-text {
+  color: #fca5a5 !important;
+}
+
+/* Checkbox (Save for my next payment) */
+.dark .adyen-checkout__checkbox__label {
+  color: #94a3b8 !important;
+}
+
+.dark .adyen-checkout__checkbox__input:not(:checked) + .adyen-checkout__checkbox__label::before {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+/* Radio buttons */
+.dark .adyen-checkout__payment-method__radio {
+  background-color: #0a0f1e !important;
+  border: 2px solid #1a2332 !important;
+}
+
+.dark .adyen-checkout__payment-method__radio--selected {
+  background-color: #00d4ff !important;
+  border: 2px solid #00d4ff !important;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.4) !important;
+}
+
+/* Remove stored payment method button (manage-payments) */
+.dark .adyen-checkout__payment-method__disable-button {
+  color: #94a3b8 !important;
+}
+
+.dark .adyen-checkout__payment-method__disable-button:hover {
+  color: #f87171 !important;
+}
+
+/* Dropin spinner / loading overlay */
+.dark .adyen-checkout__spinner {
+  border-color: #1a2332 !important;
+  border-top-color: #00d4ff !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2) !important;
+}
+
+/* Dropdown menus (country select, etc.) */
+.dark .adyen-checkout__dropdown__button {
+  background-color: #0a0f1e !important;
+  border: 2px solid #1a2332 !important;
+  color: #e6edf3 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.dark .adyen-checkout__dropdown__list {
+  background-color: #0a0f1e !important;
+  border: 2px solid #1a2332 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .adyen-checkout__dropdown__element {
+  color: #e6edf3 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  transition: all 0.15s ease !important;
+}
+
+.dark .adyen-checkout__dropdown__element:hover,
+.dark .adyen-checkout__dropdown__element--active {
+  background-color: rgba(0, 212, 255, 0.1) !important;
+  color: #00d4ff !important;
+}
+
+/* ============================================================ */
+/* 3DS Challenge — contrast & surface                            */
+/* ============================================================ */
+
+
+/* Status screens (success / error from Adyen) */
+.dark .adyen-checkout__status--success {
+  background-color: rgba(0, 255, 136, 0.1) !important;
+  color: #00ff88 !important;
+  border: 2px solid rgba(0, 255, 136, 0.3) !important;
+}
+
+.dark .adyen-checkout__status--error {
+  background-color: rgba(255, 51, 102, 0.1) !important;
+  color: #ff3366 !important;
+  border: 2px solid rgba(255, 51, 102, 0.3) !important;
+}
+
+/* ============================================================ */
+/* 3DS Challenge — centering & surface                           */
+/* ============================================================ */
+
+/* Center the challenge window within the SDK container */
+.adyen-checkout__threeds2__challenge {
+  display: block;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 0;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Dark mode: white surface so the bank's iframe content stays readable */
+.dark .adyen-checkout__threeds2__challenge {
+  background: #ffffff !important;
+  border: 2px solid #00d4ff !important;
+  border-radius: 0 !important;
+  box-shadow: 0 12px 56px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 212, 255, 0.3) !important;
+  overflow: hidden !important;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Backdrop that dims the surrounding page during challenge */
+.adyen-checkout-modal-backdrop,
+.adyen-checkout__threeds2-device-fingerprint--modal {
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(3px);
+}
+
+.dark .adyen-checkout-modal-backdrop,
+.dark .adyen-checkout__threeds2-device-fingerprint--modal {
+  background: rgba(0, 0, 0, 0.78) !important;
+  backdrop-filter: blur(3px);
+}
