@@ -27,6 +27,8 @@ export default function ManagePaymentsPage() {
     if (!containerRef.current) return;
     mountedRef.current = true;
 
+    let cancelled = false;
+
     const init = async () => {
       try {
         const AdyenCheckout = (window as any).AdyenCheckout;
@@ -44,6 +46,8 @@ export default function ManagePaymentsPage() {
           currency: state.currency,
           shopperReference,
         });
+
+        if (cancelled) return;
 
         const checkout = await AdyenCheckout({
           clientKey: config.clientKey,
@@ -140,6 +144,7 @@ export default function ManagePaymentsPage() {
     init();
 
     return () => {
+      cancelled = true;
       if (dropinRef.current) {
         try { dropinRef.current.unmount(); } catch {}
         dropinRef.current = null;

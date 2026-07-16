@@ -14,15 +14,20 @@ export async function GET(request: NextRequest) {
       const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
 
       const { data: { user } } = await supabase.auth.getUser();
-      const isFirstLogin =
-        user?.created_at &&
-        user?.last_sign_in_at &&
-        Math.abs(
-          new Date(user.last_sign_in_at).getTime() -
-          new Date(user.created_at).getTime()
-        ) < 60_000;
 
-      const destination = isFirstLogin
+      // A user is new if they have no adyen_configs row yet.
+      // Timestamp heuristics are unreliable: users can take up to 1 hour to
+      // click their OTP link, so created_at vs last_sign_in_at proximity is
+      // not a safe signal.
+      const { data: existingConfig } = user
+        ? await supabase
+            .from("adyen_configs")
+            .select("id")
+            .eq("user_id", user.id)
+            .maybeSingle()
+        : { data: null };
+
+      const destination = !existingConfig
         ? `${origin}/setup?welcome=true`
         : `${origin}/`;
 

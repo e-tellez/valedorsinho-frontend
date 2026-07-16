@@ -10,6 +10,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  *   api_key          text NOT NULL DEFAULT '',
  *   client_key       text NOT NULL DEFAULT '',
  *   merchant_account text NOT NULL DEFAULT '',
+ *   locked           boolean NOT NULL DEFAULT false,
  *   created_at       timestamptz DEFAULT now(),
  *   updated_at       timestamptz DEFAULT now(),
  *   UNIQUE(user_id)

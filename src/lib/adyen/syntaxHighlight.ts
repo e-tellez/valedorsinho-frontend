@@ -7,8 +7,7 @@ export function syntaxHighlight(json: unknown): string {
       let cls = "json-number";
       if (/^"/.test(match)) {
         if (/:$/.test(match)) {
-          cls = "json-key";
-          match = match.replace(/:$/, "") + ":";
+          return `<span class="json-key">${match.replace(/:$/, "")}</span>:`;
         } else {
           cls = "json-string";
         }
