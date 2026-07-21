@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
       channel: "Web",
       returnUrl,
       origin,
-      additionalData: { allow3DS2: "true" },
-      threeDS2RequestData: { nativeThreeDS: "preferred" },
+      // v71 handles 3DS2 automatically — threeDS2RequestData.nativeThreeDS was
+      // removed in this API version and causes a 400 validation error.
     };
 
     if (!isGuest && shopperReference) {
