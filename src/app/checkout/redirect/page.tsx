@@ -29,10 +29,18 @@ function CheckoutRedirectPageInner() {
         try {
           sessionStorage.setItem("adyen_result", JSON.stringify(result));
         } catch {}
+        // Read integrationType from persisted checkout state — this survives the
+        // browser redirect because CheckoutContext writes to sessionStorage.
+        let integrationType = "";
+        try {
+          const raw = sessionStorage.getItem("valedorsinho_checkout");
+          if (raw) integrationType = JSON.parse(raw).integrationType || "";
+        } catch {}
         const params = new URLSearchParams({
           status,
           resultCode: (result.resultCode as string) || "",
           pspReference: (result.pspReference as string) || "",
+          integrationType,
         });
         router.push(`/checkout/result?${params.toString()}`);
       })
