@@ -130,6 +130,7 @@ See `.env.example` for the full list with inline documentation.
 | `VALEDORSINHO_API_URL` | Not used | Required |
 | `NEXT_PUBLIC_VALEDORSINHO_API_URL` | Not used | Required |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Production URL |
+| `ADYEN_DEFAULT_API_KEY` | Not used | Optional fallback |
 | `ADYEN_DEFAULT_CLIENT_KEY` | Not used | Optional fallback |
 | `ADYEN_DEFAULT_MERCHANT_ACCOUNT` | Not used | Optional fallback |
 
@@ -155,6 +156,13 @@ src/
       config/
         setup/             # Adyen config read/write (includes apiKey — server-only)
         client/            # Adyen client-side config (clientKey, environment, merchantAccount)
+      checkout/
+        payment-methods/   # GET — list payment methods + stored cards
+        payments/          # POST — create payment (Advanced flow)
+          details/         # POST — submit additional details / 3DS result
+        sessions/          # POST — create session (Sessions flow)
+        redirect/          # POST — handle redirect result
+        disable/           # POST — remove stored payment method
   components/
     adyen/
       checkout/            # AdyenCheckoutPage, StepIndicator
