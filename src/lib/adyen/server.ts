@@ -113,11 +113,13 @@ export async function adyenCheckout<T>(
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new AdyenRouteError(
-      res.status,
-      "ADYEN_ERROR",
-      (json as any)?.message ?? `Adyen error ${res.status}`,
-    );
+    // Log the full Adyen error so it appears in Railway / server logs
+    console.error(`[adyen] ${path} → ${res.status}`, JSON.stringify(json));
+    const message =
+      (json as any)?.message ??
+      (json as any)?.errorCode ??
+      `Adyen error ${res.status}`;
+    throw new AdyenRouteError(res.status, "ADYEN_ERROR", message);
   }
 
   return json as T;
@@ -154,11 +156,12 @@ export async function adyenPal<T>(
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new AdyenRouteError(
-      res.status,
-      "ADYEN_ERROR",
-      (json as any)?.message ?? `Adyen error ${res.status}`,
-    );
+    console.error(`[adyen-pal] ${path} → ${res.status}`, JSON.stringify(json));
+    const message =
+      (json as any)?.message ??
+      (json as any)?.errorCode ??
+      `Adyen PAL error ${res.status}`;
+    throw new AdyenRouteError(res.status, "ADYEN_ERROR", message);
   }
 
   return json as T;

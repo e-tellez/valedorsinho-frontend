@@ -46,8 +46,13 @@ export async function apiFetch<T = unknown>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null);
+    // errorBody?.error may be a nested object { code, message } from our route
+    // handlers — unwrap it so we always end up with a string.
+    const nestedError = errorBody?.error;
     const message =
-      errorBody?.detail ?? errorBody?.error ?? `API error: ${response.status}`;
+      errorBody?.detail ??
+      (typeof nestedError === "string" ? nestedError : nestedError?.message) ??
+      `API error: ${response.status}`;
     console.error(`[api] ${method} ${url} failed:`, errorBody ?? message);
     throw new Error(message);
   }

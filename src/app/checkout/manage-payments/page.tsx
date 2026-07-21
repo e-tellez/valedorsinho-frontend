@@ -49,10 +49,19 @@ export default function ManagePaymentsPage() {
 
         if (cancelled) return;
 
+        // Only show card-based payment methods — Google Pay, wallets, etc. cannot
+        // be "stored" and don't belong in the Manage Cards section.
+        const cardOnlyResponse = {
+          ...pmData.response,
+          paymentMethods: (pmData.response.paymentMethods ?? []).filter(
+            (pm: any) => pm.type === "scheme",
+          ),
+        };
+
         const checkout = await AdyenCheckout({
           clientKey: config.clientKey,
           environment: config.environment,
-          paymentMethodsResponse: pmData.response,
+          paymentMethodsResponse: cardOnlyResponse,
           locale: "en-US",
           translations: managePaymentsTranslations,
           analytics: { enabled: false },
@@ -62,7 +71,9 @@ export default function ManagePaymentsPage() {
               hasHolderName: true,
               holderNameRequired: true,
               billingAddressRequired: false,
-              enableStoreDetails: true,
+              // Storing is always forced in onSubmit — hide the checkbox so the
+              // shopper can't accidentally uncheck it.
+              enableStoreDetails: false,
               styles: adyenCardStyles,
             },
             storedCard: {
