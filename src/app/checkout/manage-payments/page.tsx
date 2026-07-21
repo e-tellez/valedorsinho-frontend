@@ -55,7 +55,7 @@ export default function ManagePaymentsPage() {
           paymentMethodsResponse: pmData.response,
           locale: "en-US",
           translations: managePaymentsTranslations,
-          analytics: { enabled: true },
+          analytics: { enabled: false },
           threeDS2Configuration: { challengeWindowSize: "03" },
           paymentMethodsConfiguration: {
             card: {

@@ -163,7 +163,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
           clientKey: config.clientKey,
           environment: config.environment,
           locale: "en-US",
-          analytics: { enabled: true },
+          analytics: { enabled: false },
           threeDS2Configuration: { challengeWindowSize: "03" },
           ...(isDropin && {
             paymentMethodsConfiguration: {
