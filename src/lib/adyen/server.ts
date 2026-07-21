@@ -126,6 +126,90 @@ export async function adyenCheckout<T>(
 }
 
 // ---------------------------------------------------------------------------
+// Management API (v3) — used for terminal merchants / stores / terminals
+// ---------------------------------------------------------------------------
+
+function managementBase(environment: string): string {
+  return environment === "live"
+    ? "https://management-live.adyen.com/v3"
+    : "https://management-test.adyen.com/v3";
+}
+
+/**
+ * GET from the Adyen Management API (/v3/...).
+ * Throws AdyenRouteError on non-2xx responses.
+ */
+export async function adyenManagement<T>(
+  creds: AdyenCreds,
+  path: string,
+  params?: Record<string, string>,
+): Promise<T> {
+  const url = new URL(`${managementBase(creds.environment)}${path}`);
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  }
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-API-key": creds.apiKey,
+    },
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    console.error(`[adyen-management] GET ${path} → ${res.status}`, JSON.stringify(json));
+    const message =
+      (json as any)?.message ??
+      (json as any)?.errorCode ??
+      `Adyen Management error ${res.status}`;
+    throw new AdyenRouteError(res.status, "ADYEN_MANAGEMENT_ERROR", message);
+  }
+
+  return json as T;
+}
+
+// ---------------------------------------------------------------------------
+// Terminal Cloud API — used for in-person NEXO payment requests
+// ---------------------------------------------------------------------------
+
+function terminalBase(environment: string): string {
+  return environment === "live"
+    ? "https://terminal-api-live.adyen.com/sync"
+    : "https://terminal-api-test.adyen.com/sync";
+}
+
+/**
+ * POST to the Adyen Terminal Cloud API (NEXO /sync endpoint).
+ * Throws AdyenRouteError on non-2xx responses.
+ */
+export async function adyenTerminal<T>(creds: AdyenCreds, body: unknown): Promise<T> {
+  const res = await fetch(terminalBase(creds.environment), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-API-key": creds.apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    console.error(`[adyen-terminal] sync → ${res.status}`, JSON.stringify(json));
+    const message =
+      (json as any)?.message ??
+      (json as any)?.errorCode ??
+      `Terminal API error ${res.status}`;
+    throw new AdyenRouteError(res.status, "ADYEN_TERMINAL_ERROR", message);
+  }
+
+  return json as T;
+}
+
+// ---------------------------------------------------------------------------
 // PAL / Recurring API (v49) — used for disabling stored payment methods
 // ---------------------------------------------------------------------------
 
