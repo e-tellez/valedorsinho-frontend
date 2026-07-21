@@ -5,6 +5,9 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24; // 24 hours
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
+  // Use the explicit app URL to avoid Railway's internal localhost:8080 origin
+  // being used as the redirect base when running behind a reverse proxy.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const code = searchParams.get("code");
 
   if (code) {
@@ -28,8 +31,8 @@ export async function GET(request: NextRequest) {
         : { data: null };
 
       const destination = !existingConfig
-        ? `${origin}/setup?welcome=true`
-        : `${origin}/`;
+        ? `${appUrl}/setup?welcome=true`
+        : `${appUrl}/`;
 
       const response = NextResponse.redirect(destination);
       response.cookies.set("vld_session_expires_at", String(expiresAt), {
@@ -43,5 +46,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+  return NextResponse.redirect(`${appUrl}/login?error=auth_failed`);
 }
