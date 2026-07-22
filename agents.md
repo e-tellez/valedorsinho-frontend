@@ -62,6 +62,7 @@ src/
 | Component | Purpose | Key Props |
 |---|---|---|
 | `ApiCallCard` | API call inspector — **single source of truth; never use PreviewCard for API data** | `ApiCallEntry`: `method`, `endpoint`, `direction`, `statusCode`, `latencyMs`, `timestamp`, `request`, `response`, `extra` — pass raw objects |
+| `ApiCallPanel` | Fixed side-panel that wraps `ApiCallCard` entries — **always use this instead of an inline section** | `calls: ApiCallEntry[]`, `side: "left" \| "right"` — panel is hidden when `calls` is empty |
 | `PageHeader` | Centered title + back button + optional right slot | `title`, `subtitle`, `backHref`, `backLabel`, `right` |
 | `StatusBanner` | Status message | `msg`, `type: "success" \| "error" \| "info"` |
 | `DashCard` | Dashboard feature card | `href`, `icon`, `iconClass`, `title`, `description`, `badge`, `disabled` |
@@ -143,6 +144,7 @@ Commits: Conventional Commits `type(scope): description` — `feat`, `fix`, `cho
 
 | Rule | Detail |
 |---|---|
+| Never render `ApiCallCard` entries inline in a page | Always use `<ApiCallPanel side="left"\|"right" calls={apiCalls} />` — it handles positioning, scrolling, and the label |
 | Never call `useCheckoutConfig()` and `useAdyen()` together | `useAdyen()` already calls it internally — double fetch |
 | Only one `ThemeToggle` — `src/components/adyen/shared/ThemeToggle.tsx` | Root-level duplicate was deleted |
 | Always import `DashCard` from `src/components/adyen/shared/DashCard.tsx` | Never shadow with a local version |
