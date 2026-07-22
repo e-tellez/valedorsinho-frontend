@@ -133,9 +133,11 @@ export interface Terminal {
 export interface TerminalPaymentResult {
   success: boolean;
   resultTitle: string;
-  resultMessage: string;
-  decodedAdditionalResponse: Record<string, unknown> | string | null;
-  paymentSummary: Array<{ label: string; value: string }>;
+  resultMessage?: string;
+  decodedAdditionalResponse?: Record<string, unknown> | string | null;
+  paymentSummary?: Array<{ label: string; value: string }>;
+  /** Full raw terminal API response, stored alongside the decoded result for display. */
+  responseJson?: object;
 }
 
 // ---------------------------------------------------------------------------

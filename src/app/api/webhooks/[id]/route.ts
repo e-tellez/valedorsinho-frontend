@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * GET /api/webhooks/{id}
  *
  * Returns the full detail (including raw payload) of a single Adyen webhook
- * notification from the `webhook_notifications` Supabase table.
+ * notification from the `webhooks` Supabase table.
  *
  * Response: WebhookDetail (includes a `payload` JSONB field)
  */

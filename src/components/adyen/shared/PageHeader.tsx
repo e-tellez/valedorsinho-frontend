@@ -106,7 +106,7 @@ export default function PageHeader({
 
         {/* Right slot - balanced spacing */}
         <div className="flex-none pt-2">
-          {right || <div className="w-[120px]" aria-hidden="true" />}
+          {right !== undefined ? right : <div className="w-[120px]" aria-hidden="true" />}
         </div>
       </div>
       

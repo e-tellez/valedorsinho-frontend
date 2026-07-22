@@ -12,7 +12,7 @@ import {
   Bot,
   Network,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/adyen/shared/ThemeToggle";
 import DashCard from "@/components/adyen/shared/DashCard";
 import SystemStatus from "@/components/adyen/shared/SystemStatus";
 import OnboardingBanner from "@/components/adyen/shared/OnboardingBanner";

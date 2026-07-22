@@ -5,22 +5,14 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { syntaxHighlight } from "@/lib/adyen/syntaxHighlight";
 import PageHeader from "@/components/adyen/shared/PageHeader";
-
-interface PaymentResultData {
-  success: boolean;
-  resultTitle: string;
-  resultMessage?: string;
-  decodedAdditionalResponse?: Record<string, unknown> | string | null;
-  paymentSummary?: Array<{ label: string; value: string }>;
-  responseJson?: object;
-}
+import type { TerminalPaymentResult } from "@/lib/adyen/types";
 
 function TerminalPaymentResultPageInner() {
   const searchParams = useSearchParams();
   const terminalId = searchParams.get("terminalId") || "";
   const merchantAccount = searchParams.get("merchantAccount") || "";
 
-  const [data, setData] = useState<PaymentResultData | null>(null);
+  const [data, setData] = useState<TerminalPaymentResult | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
