@@ -56,19 +56,20 @@ function TerminalPaymentResultPageInner() {
 
   return (
     <div className={`w-full ${hasDecoded ? "max-w-[1400px]" : "max-w-[900px]"}`}>
-      <header className="mb-3 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Payment Result</h1>
-        <p className="text-sm text-gray-500">Terminal API response for your payment request.</p>
-      </header>
-
-      {/* Buttons row */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Link href={backHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-5 text-sm">
-          &larr; Make Another Payment
-        </Link>
-        <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-5 text-sm">
-          &larr; Back to Terminal Payments
-        </Link>
+      {/* Header row: title on the left, buttons aligned to the right at the same level */}
+      <div className="flex items-center justify-between gap-4 mb-5">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Payment Result</h1>
+          <p className="text-sm text-gray-500">Terminal API response for your payment request.</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <Link href={backHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-3 text-xs py-1!">
+            &larr; Make Another Payment
+          </Link>
+          <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-3 text-xs py-1!">
+            &larr; Back to Terminal Payments
+          </Link>
+        </div>
       </div>
 
       {/* Banner + Summary */}
