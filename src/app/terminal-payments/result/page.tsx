@@ -60,49 +60,39 @@ function TerminalPaymentResultPageInner() {
       <PageHeader
         title="Payment Result"
         subtitle="Terminal API response for your payment request."
-        showBack={false}
+        backHref="/terminal-payments"
+        backLabel="Terminal Payments"
+        right={
+          <Link
+            href={makePaymentHref}
+            className="btn-primary inline-flex! items-center! justify-center! w-auto! px-4 text-sm"
+          >
+            Make Another Payment &rarr;
+          </Link>
+        }
       />
 
-      {/* Three-column: [buttons] [centered banner] [spacer] */}
-      <div className="grid grid-cols-[auto_1fr_auto] gap-5 items-center mb-5">
-        {/* Left: both nav buttons stacked */}
-        <div className="flex flex-col gap-2">
-          <Link href={makePaymentHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-4 text-sm">
-            &larr; Make Another Payment
-          </Link>
-          <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-4 text-sm">
-            &larr; Back to Terminal Payments
-          </Link>
+      {/* Banner centered */}
+      <div className={`max-w-[500px] mx-auto rounded-xl border overflow-hidden mb-5 ${data.success ? "border-green-200" : "border-red-200"}`}>
+        <div className={`flex items-center justify-center gap-3 px-6 py-4 text-white ${data.success ? "bg-green-600" : "bg-red-600"}`}>
+          <span className="text-2xl">{data.success ? "\u2713" : "\u2717"}</span>
+          <span className="text-lg font-bold">{data.resultTitle}</span>
         </div>
 
-        {/* Center: result banner centered */}
-        <div className={`rounded-xl border overflow-hidden ${data.success ? "border-green-200" : "border-red-200"}`}>
-          <div className={`flex items-center justify-center gap-3 px-6 py-4 text-white ${data.success ? "bg-green-600" : "bg-red-600"}`}>
-            <span className="text-2xl">{data.success ? "\u2713" : "\u2717"}</span>
-            <span className="text-lg font-bold">{data.resultTitle}</span>
+        {data.resultMessage && (
+          <div className="text-center text-sm text-gray-500 px-5 pt-2 pb-3">{data.resultMessage}</div>
+        )}
+
+        {data.paymentSummary && data.paymentSummary.length > 0 && (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2.5 px-5 py-4">
+            {data.paymentSummary.map((item, i) => (
+              <div key={i}>
+                <div className="text-[0.68rem] font-semibold text-gray-400 uppercase tracking-wider">{item.label}</div>
+                <div className="text-sm font-semibold text-gray-900 mt-0.5">{item.value}</div>
+              </div>
+            ))}
           </div>
-
-          {data.resultMessage && (
-            <div className="text-center text-sm text-gray-500 px-5 pt-2 pb-3">{data.resultMessage}</div>
-          )}
-
-          {data.paymentSummary && data.paymentSummary.length > 0 && (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2.5 px-5 py-4">
-              {data.paymentSummary.map((item, i) => (
-                <div key={i}>
-                  <div className="text-[0.68rem] font-semibold text-gray-400 uppercase tracking-wider">{item.label}</div>
-                  <div className="text-sm font-semibold text-gray-900 mt-0.5">{item.value}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right: invisible spacer matching the left column width */}
-        <div className="invisible flex flex-col gap-2" aria-hidden="true">
-          <span className="btn-primary px-4 text-sm">&larr; Make Another Payment</span>
-          <span className="btn-secondary px-4 text-sm">&larr; Back to Terminal Payments</span>
-        </div>
+        )}
       </div>
 
       {/* Two-column: full response + decoded */}
