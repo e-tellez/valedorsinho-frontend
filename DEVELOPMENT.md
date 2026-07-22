@@ -171,13 +171,21 @@ src/
   context/
     adyen/CheckoutContext.tsx
     theme/ThemeContext.tsx
-  hooks/adyen/
-    useAdyen.ts            # Loads Adyen SDK + config
-    useCheckoutConfig.ts   # Fetches /api/config/client
-  lib/adyen/
-    api.ts                 # apiFetch / apiGet / apiPost / apiPut (JWT-aware)
-    types.ts               # TypeScript types mirroring FastAPI models
-    constants.ts           # ADYEN_SDK_VERSION, INTEGRATIONS, COUNTRY_CURRENCY_MAP
+  hooks/
+    adyen/
+      useAdyen.ts          # Loads Adyen SDK + config
+      useCheckoutConfig.ts # Fetches /api/config/client
+    useTerminalSelector.ts # Cascading merchant → store → terminal fetch
+  lib/
+    adyen/
+      api.ts               # apiFetch / apiGet / apiPost / apiPut (JWT-aware)
+      types.ts             # Adyen API TypeScript types (mirroring FastAPI models)
+      constants.ts         # ADYEN_SDK_VERSION, INTEGRATIONS, COUNTRY_CURRENCY_MAP
+      utils.ts             # formatDate(iso) — import from here, never redefine
+    supabase/
+      browser.ts           # getSupabaseBrowserClient()
+      server.ts            # getSupabaseServerClient()
+      types.ts             # Supabase row types (WebhookItem, WebhookDetail, ...)
   mocks/
     handlers.ts            # MSW request handlers (one per API endpoint)
     browser.ts             # MSW browser worker setup

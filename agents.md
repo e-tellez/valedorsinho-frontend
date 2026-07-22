@@ -35,12 +35,13 @@ src/
     adyen/
       checkout/             # AdyenCheckoutPage.tsx, StepIndicator.tsx
       shared/               # Shared components (see below)
-    ThemeToggle.tsx         # ⚠ duplicate — use shared/ThemeToggle
   context/adyen/CheckoutContext.tsx
   context/theme/
   hooks/adyen/
     useAdyen.ts             # SDK script + CSS loader; calls useCheckoutConfig internally
     useCheckoutConfig.ts    # GET /api/config/client → ClientConfig
+  hooks/
+    useTerminalSelector.ts  # Cascading merchant → store → terminal fetch hook
   lib/adyen/
     api.ts                  # apiFetch / apiGet / apiPost / apiPut
     constants.ts            # INTEGRATIONS, COUNTRY_CURRENCY_MAP, ADYEN_SDK_VERSION
@@ -49,8 +50,10 @@ src/
     types.ts                # TS types mirroring FastAPI Pydantic models
     utils.ts                # formatDate(iso)
     verticals.ts            # Vertical interface
-  lib/supabase/browser.ts   # getSupabaseBrowserClient()
-  lib/supabase/server.ts
+  lib/supabase/
+    browser.ts              # getSupabaseBrowserClient()
+    server.ts
+    types.ts                # Supabase row types (WebhookItem, WebhookDetail, ...)
   middleware.ts             # Supabase JWT guard for /valedorsinho/*; legacy JWT for others
 ```
 
@@ -89,6 +92,8 @@ Roles: `admin`, `im`, `user` — config write access + webhook retention (admin:
 **`useAdyen()`** → `{ AdyenCheckout, config, ready, error }`. Loads SDK + CSS; calls `useCheckoutConfig()` internally.
 **`useCheckoutConfig()`** → `{ config, error, loading }`. Fetches `GET /api/config/client`.
 **⚠ Never call both in the same component** — fires two `/api/config/client` requests.
+
+**`useTerminalSelector()`** (`src/hooks/useTerminalSelector.ts`) — encapsulates the cascading merchant → store → terminal fetch. Use this instead of copying the three-level cascade. Returns `{ companyAccount, merchants, stores, terminals, selectedMerchant, selectedStore, selectedTerminal, status, loading*, setSelectedMerchant, setSelectedStore, setSelectedTerminal, setStatus }`. The `set*` wrappers include cascading resets of dependent selections.
 
 **`CheckoutContext`** (`src/context/adyen/CheckoutContext.tsx`) — persists checkout state in `sessionStorage`.
 ```ts
@@ -134,17 +139,17 @@ Commits: Conventional Commits `type(scope): description` — `feat`, `fix`, `cho
 | `valedorsinho/epic/global-ui` | Theme toggle, layout, navigation, ApiCallCard |
 | `valedorsinho/epic/code-refactor` | All refactor items below |
 
-## Known Issues — Do Not Re-introduce (`valedorsinho/epic/code-refactor`)
+## Do Not Re-introduce (`valedorsinho/epic/code-refactor` — all resolved 2026-07-21)
 
-| Priority | Issue |
+| Rule | Detail |
 |---|---|
-| **Critical** | Double `useCheckoutConfig` fetch — `AdyenCheckoutPage.tsx` calls both `useCheckoutConfig()` and `useAdyen()` |
-| **Critical** | Two `ThemeToggle` impls — `src/components/ThemeToggle.tsx` vs `src/components/adyen/shared/ThemeToggle.tsx` |
-| **High** | `DashCard` inline in `valedorsinho/page.tsx`; shared `DashCard.tsx` is dead code |
-| **High** | `formatDate` may be duplicated in page files — canonical: `src/lib/adyen/utils.ts` |
-| **Medium** | Local types in `terminal-payments` / `terminal-fleet` overlap with `src/lib/adyen/types.ts` |
-| **Medium** | Merchant → stores → terminals cascading fetch duplicated — candidate for `useTerminalSelector` hook |
-| **Low** | Inline SVG icons in `valedorsinho/page.tsx` — replace with Lucide |
+| Never call `useCheckoutConfig()` and `useAdyen()` together | `useAdyen()` already calls it internally — double fetch |
+| Only one `ThemeToggle` — `src/components/adyen/shared/ThemeToggle.tsx` | Root-level duplicate was deleted |
+| Always import `DashCard` from `src/components/adyen/shared/DashCard.tsx` | Never shadow with a local version |
+| `formatDate` lives only in `src/lib/adyen/utils.ts` | Never redefine inline |
+| Adyen types → `src/lib/adyen/types.ts`; Supabase row types → `src/lib/supabase/types.ts` | Never declare overlapping types in page files |
+| Use `useTerminalSelector` hook for merchant → store → terminal cascades | Never copy the three-level fetch pattern directly into a page |
+| Use Lucide React icons, not inline SVGs | Exception: programmatic diagram canvases and custom brand assets |
 
 ## Frontend-Only Demos
 
