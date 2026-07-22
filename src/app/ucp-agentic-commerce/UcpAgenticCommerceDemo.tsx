@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { STEPS, PHASES, getPhaseForStep, type UcpStep } from './data/steps';
 import StepSidebar from './components/StepSidebar';
 import FlowDiagram from './components/FlowDiagram';
@@ -117,7 +118,7 @@ export default function UcpAgenticCommerceDemo() {
               className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Previous (←)"
             >
-              <ChevronLeft />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => setIsPlaying(p => !p)}
@@ -135,14 +136,14 @@ export default function UcpAgenticCommerceDemo() {
               className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Next (→)"
             >
-              <ChevronRight />
+              <ChevronRight className="w-4 h-4" />
             </button>
             <button
               onClick={handleReset}
               className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors ml-1"
               title="Reset"
             >
-              <ResetIcon />
+              <RotateCcw className="w-4 h-4" />
             </button>
           </div>
 
@@ -213,27 +214,4 @@ export default function UcpAgenticCommerceDemo() {
   );
 }
 
-function ChevronLeft() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
-function ChevronRight() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ResetIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M2.5 8a5.5 5.5 0 1 0 1-3.18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M2.5 4.5V8h3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}

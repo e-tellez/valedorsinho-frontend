@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { Info } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import { formatDate } from "@/lib/adyen/utils";
 import type { Terminal, Store } from "@/lib/adyen/types";
@@ -318,9 +319,7 @@ export default function TerminalFleetPage() {
                 <th className="px-3 py-2 text-left">
                   <span className="relative group inline-flex items-center gap-1 cursor-default">
                     Last Activity
-                    <svg className="w-3 h-3 text-gray-400" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.75 10.5h-1.5v-5h1.5v5zm0-6.5h-1.5V3.5h1.5V5z" />
-                    </svg>
+                    <Info className="w-3 h-3 text-gray-400" />
                     <div className="absolute left-0 bottom-full mb-1.5 z-20 hidden group-hover:flex flex-col gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg px-3 py-2.5 w-52 normal-case tracking-normal font-normal text-gray-700 dark:text-slate-300">
                       <span className="flex items-center gap-2"><span className="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0" />Active in the last hour</span>
                       <span className="flex items-center gap-2"><span className="inline-block w-2 h-2 rounded-full bg-yellow-400 shrink-0" />Active in the last 24 h</span>

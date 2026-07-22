@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Mail } from "lucide-react";
 
 type Step = "email" | "sent";
 
@@ -92,10 +93,7 @@ export default function ValedorsinhoLoginPage() {
         ) : (
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0ABF53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
+              <Mail width={40} height={40} stroke="#0ABF53" strokeWidth={2} aria-hidden="true" />
             </div>
             <p className="text-sm font-medium text-gray-800 mb-1">Check your inbox</p>
             <p className="text-sm text-gray-500 mb-6">

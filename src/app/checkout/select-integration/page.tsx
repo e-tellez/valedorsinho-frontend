@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CreditCard } from "lucide-react";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
 import { getIntegrationsByCategory } from "@/lib/adyen/constants";
 import StepIndicator from "@/components/adyen/checkout/StepIndicator";
@@ -37,10 +38,7 @@ export default function SelectIntegrationPage() {
             href="/checkout/manage-payments"
             className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg no-underline whitespace-nowrap transition-colors hover:border-primary hover:bg-blue-50 dark:hover:bg-slate-700"
           >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <rect x={1} y={4} width={22} height={16} rx={2} ry={2} />
-              <line x1={1} y1={10} x2={23} y2={10} />
-            </svg>
+            <CreditCard className="w-4 h-4 shrink-0" />
             Manage cards
           </Link>
         )}

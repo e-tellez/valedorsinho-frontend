@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { apiGet } from "@/lib/adyen/api";
-import type { MerchantAccount, Store, Terminal } from "@/lib/adyen/types";
+import { CreditCard, ShieldCheck, ScanLine } from "lucide-react";
+import { useTerminalSelector } from "@/hooks/useTerminalSelector";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import StatusBanner from "@/components/adyen/shared/StatusBanner";
 
@@ -12,115 +11,42 @@ const FLOWS = [
     href: "/terminal-payments/make-payment",
     title: "Make a Payment",
     desc: "Send a payment request to the terminal.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-        <rect x={1} y={4} width={22} height={16} rx={2} ry={2} />
-        <line x1={1} y1={10} x2={23} y2={10} />
-      </svg>
-    ),
+    icon: <CreditCard className="w-full h-full" />,
   },
   {
     href: "/terminal-payments/auth-capt",
     title: "Auth + Capture",
     desc: "Pre-authorize then capture in separate steps.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
+    icon: <ShieldCheck className="w-full h-full" />,
   },
   {
     href: "/terminal-payments/card-acquisition",
     title: "Card Acquisition",
     desc: "Acquire card details without charging.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-        <rect x={2} y={5} width={20} height={14} rx={2} />
-        <path d="M12 9v6" />
-        <path d="M9 12h6" />
-      </svg>
-    ),
+    icon: <ScanLine className="w-full h-full" />,
   },
 ];
 
 export default function TerminalPaymentsPage() {
-  const [companyAccount, setCompanyAccount] = useState("Loading\u2026");
-  const [merchants, setMerchants] = useState<MerchantAccount[]>([]);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [terminals, setTerminals] = useState<Terminal[]>([]);
-
-  const [selectedMerchant, setSelectedMerchant] = useState("");
-  const [selectedStore, setSelectedStore] = useState("");
-  const [selectedTerminal, setSelectedTerminal] = useState("");
-
-  const [status, setStatus] = useState<{ msg: string; type: "success" | "error" | "info" } | null>(null);
-  const [loadingMerchants, setLoadingMerchants] = useState(true);
-  const [loadingStores, setLoadingStores] = useState(false);
-  const [loadingTerminals, setLoadingTerminals] = useState(false);
+  const {
+    companyAccount,
+    merchants,
+    stores,
+    terminals,
+    selectedMerchant,
+    selectedStore,
+    selectedTerminal,
+    status,
+    loadingMerchants,
+    loadingStores,
+    loadingTerminals,
+    setSelectedMerchant,
+    setSelectedStore,
+    setSelectedTerminal,
+    setStatus,
+  } = useTerminalSelector();
 
   const flowsEnabled = !!selectedTerminal;
-
-  // Fetch merchants on mount
-  useEffect(() => {
-    setLoadingMerchants(true);
-    apiGet<{ data: MerchantAccount[] }>("/api/terminal/merchants")
-      .then((res) => {
-        const list = res.data || [];
-        setMerchants(list);
-        if (list.length > 0 && list[0].companyId) {
-          setCompanyAccount(list[0].companyId);
-        } else {
-          setCompanyAccount("\u2014");
-        }
-        if (list.length === 1) {
-          setSelectedMerchant(list[0].id);
-        }
-      })
-      .catch((err) => {
-        setStatus({ msg: "Failed to load merchants: " + err.message, type: "error" });
-        setCompanyAccount("\u2014");
-      })
-      .finally(() => setLoadingMerchants(false));
-  }, []);
-
-  // Fetch stores + terminals when merchant changes
-  useEffect(() => {
-    if (!selectedMerchant) {
-      setStores([]);
-      setTerminals([]);
-      setSelectedStore("");
-      setSelectedTerminal("");
-      return;
-    }
-
-    setLoadingStores(true);
-    apiGet<{ data: Store[] }>(`/api/terminal/stores?merchantId=${encodeURIComponent(selectedMerchant)}`)
-      .then((res) => setStores(res.data || []))
-      .catch((err) => setStatus({ msg: "Failed to load stores: " + err.message, type: "error" }))
-      .finally(() => setLoadingStores(false));
-
-    fetchTerminals(selectedMerchant, "");
-  }, [selectedMerchant]);
-
-  // Re-fetch terminals when store changes
-  useEffect(() => {
-    if (!selectedMerchant) return;
-    fetchTerminals(selectedMerchant, selectedStore);
-  }, [selectedStore]);
-
-  const fetchTerminals = useCallback((merchantId: string, storeId: string) => {
-    setLoadingTerminals(true);
-    setSelectedTerminal("");
-
-    const params = new URLSearchParams({ merchantIds: merchantId, pageSize: "100" });
-    if (storeId) params.set("storeIds", storeId);
-
-    apiGet<{ data: Terminal[] }>(`/api/terminal/terminals?${params.toString()}`)
-      .then((res) => setTerminals(res.data || []))
-      .catch((err) => setStatus({ msg: "Failed to load terminals: " + err.message, type: "error" }))
-      .finally(() => setLoadingTerminals(false));
-  }, []);
 
   function buildFlowHref(baseHref: string) {
     if (!selectedTerminal) return "#";
@@ -155,7 +81,7 @@ export default function TerminalPaymentsPage() {
               id="merchant-select"
               className="field-input"
               value={selectedMerchant}
-              onChange={(e) => { setSelectedMerchant(e.target.value); setSelectedStore(""); setSelectedTerminal(""); setStatus(null); }}
+              onChange={(e) => setSelectedMerchant(e.target.value)}
               disabled={loadingMerchants || merchants.length === 0}
             >
               <option value="">{loadingMerchants ? "Loading\u2026" : merchants.length === 0 ? "No merchants found" : "Select merchant account\u2026"}</option>
@@ -172,7 +98,7 @@ export default function TerminalPaymentsPage() {
               id="store-select"
               className="field-input"
               value={selectedStore}
-              onChange={(e) => { setSelectedStore(e.target.value); setSelectedTerminal(""); }}
+              onChange={(e) => setSelectedStore(e.target.value)}
               disabled={!selectedMerchant || loadingStores}
             >
               <option value="">{!selectedMerchant ? "Select a merchant first" : loadingStores ? "Loading\u2026" : "All stores"}</option>

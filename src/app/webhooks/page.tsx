@@ -1,38 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { RefreshCw, MessageSquare } from "lucide-react";
 import { apiGet } from "@/lib/adyen/api";
 import { formatDate } from "@/lib/adyen/utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import type { WebhookItem, WebhookDetail, WebhookListResponse } from "@/lib/supabase/types";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface WebhookItem {
-  id: string;
-  user_id: string;
-  merchant_account: string;
-  event_code: string;
-  psp_reference: string;
-  merchant_reference: string;
-  amount_value: number;
-  amount_currency: string;
-  success: boolean;
-  live: boolean;
-  received_at: string;
-  expires_at: string;
-}
-
-interface WebhookDetail extends WebhookItem {
-  payload: object;
-}
-
-interface WebhookListResponse {
-  items: WebhookItem[];
-}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -138,19 +113,7 @@ function RefreshButton({ onClick, loading }: { onClick: () => void; loading: boo
       disabled={loading}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.8rem] font-semibold bg-white dark:bg-slate-800 border border-[#e5e5e5] dark:border-slate-700 text-[#444] dark:text-slate-300 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
-      >
-        <polyline points="23 4 23 10 17 10" />
-        <polyline points="1 20 1 14 7 14" />
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-      </svg>
+      <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
       Refresh
     </button>
   );
@@ -336,9 +299,7 @@ export default function WebhooksPage() {
       {!loading && !error && webhooks.length === 0 && (
         <div className="rounded-[10px] border border-[#e5e5e5] dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-12 text-center">
           <div className="w-10 h-10 mx-auto mb-3 text-[#ccc] dark:text-slate-600">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <MessageSquare className="w-full h-full" strokeWidth={1.5} />
           </div>
           <p className="text-[0.95rem] font-semibold text-[#1a1a1a] dark:text-white mb-1">No webhooks yet</p>
           <p className="text-[0.82rem] text-[#888] dark:text-slate-400 max-w-xs mx-auto">

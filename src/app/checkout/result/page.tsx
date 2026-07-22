@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Check, X } from "lucide-react";
 import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 
@@ -37,14 +38,9 @@ function ResultPageInner() {
       <div className={`rounded-xl overflow-hidden shadow-md mb-6 ${isSuccess ? "border border-green-200 dark:border-green-800" : "border border-red-200 dark:border-red-800"}`}>
         <div className={`flex items-center justify-center gap-3 py-5 px-6 text-white font-bold text-lg ${isSuccess ? "bg-green-600" : "bg-red-600"}`}>
           {isSuccess ? (
-            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+            <Check className="w-7 h-7" strokeWidth={2.5} />
           ) : (
-            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-              <line x1={18} y1={6} x2={6} y2={18} />
-              <line x1={6} y1={6} x2={18} y2={18} />
-            </svg>
+            <X className="w-7 h-7" strokeWidth={2.5} />
           )}
           <span>{isSuccess ? "Payment Successful" : "Payment Failed"}</span>
         </div>

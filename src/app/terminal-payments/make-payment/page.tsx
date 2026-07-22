@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import { syntaxHighlight } from "@/lib/adyen/syntaxHighlight";
+import type { Store } from "@/lib/adyen/types";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import FieldRow from "@/components/adyen/shared/FieldRow";
 
@@ -19,7 +20,7 @@ const CURRENCIES = [
 const FORCE_ENTRY_MODES = ["", "Contactless", "ICC", "MagStripe", "Manual", "RFID"];
 const FORCE_ENTRY_LABELS: Record<string, string> = { "": "None" };
 
-interface StoreOption { reference?: string; description?: string; }
+type StoreOption = Pick<Store, "reference" | "description">;
 
 // ---------------------------------------------------------------------------
 // Helpers
