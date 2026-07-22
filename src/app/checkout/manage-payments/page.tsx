@@ -6,6 +6,8 @@ import { useAdyen } from "@/hooks/adyen/useAdyen";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import StatusBanner from "@/components/adyen/shared/StatusBanner";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 import { managePaymentsTranslations } from "@/lib/adyen/translations";
 
 export default function ManagePaymentsPage() {
@@ -19,6 +21,7 @@ export default function ManagePaymentsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [status, setStatus] = useState<{ msg: string; type: "success" | "error" | "info" } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [apiCalls, setApiCalls] = useState<ApiCallEntry[]>([]);
 
   const shopperReference = state.shopperReference;
 
@@ -41,11 +44,34 @@ export default function ManagePaymentsPage() {
           error: { color: "#fca5a5" },
         } : {};
 
-        const pmData = await apiGet<any>("/api/checkout/payment-methods", {
-          countryCode: state.countryCode,
-          currency: state.currency,
-          shopperReference,
-        });
+        const pmRequest = { countryCode: state.countryCode, currency: state.currency, shopperReference };
+        const pmT0 = Date.now();
+        let pmData: any;
+        try {
+          pmData = await apiGet<any>("/api/checkout/payment-methods", pmRequest);
+          setApiCalls(prev => [...prev, {
+            method: "GET",
+            endpoint: "/api/checkout/payment-methods",
+            direction: "merchant→adyen",
+            request: pmRequest,
+            response: pmData,
+            statusCode: 200,
+            latencyMs: Date.now() - pmT0,
+            timestamp: new Date().toISOString(),
+          }]);
+        } catch (pmErr: any) {
+          setApiCalls(prev => [...prev, {
+            method: "GET",
+            endpoint: "/api/checkout/payment-methods",
+            direction: "merchant→adyen",
+            request: pmRequest,
+            response: { error: pmErr.message },
+            statusCode: 500,
+            latencyMs: Date.now() - pmT0,
+            timestamp: new Date().toISOString(),
+          }]);
+          throw pmErr;
+        }
 
         if (cancelled) return;
 
@@ -83,18 +109,30 @@ export default function ManagePaymentsPage() {
           },
           onSubmit: async (sdkState: any, component: any) => {
             component.setStatus("loading");
+            const paymentsRequest = {
+              ...sdkState.data,
+              amountValue: 0,
+              currency: state.currency,
+              countryCode: state.countryCode,
+              shopperReference,
+              isGuest: false,
+              storePaymentMethod: true,
+              returnUrl: `${window.location.origin}/checkout/manage-payments`,
+              origin: window.location.origin,
+            };
+            const t0 = Date.now();
             try {
-              const result = await apiPost<any>("/api/checkout/payments", {
-                ...sdkState.data,
-                amountValue: 0,
-                currency: state.currency,
-                countryCode: state.countryCode,
-                shopperReference,
-                isGuest: false,
-                storePaymentMethod: true,
-                returnUrl: `${window.location.origin}/checkout/manage-payments`,
-                origin: window.location.origin,
-              });
+              const result = await apiPost<any>("/api/checkout/payments", paymentsRequest);
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/payments",
+                direction: "merchant→adyen",
+                request: paymentsRequest,
+                response: result,
+                statusCode: 200,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               if (result.action) {
                 component.handleAction(result.action);
               } else if (["Authorised", "Received"].includes(result.resultCode)) {
@@ -104,13 +142,34 @@ export default function ManagePaymentsPage() {
                 component.setStatus("error", { message: "Could not save card." });
               }
             } catch (err: any) {
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/payments",
+                direction: "merchant→adyen",
+                request: paymentsRequest,
+                response: { error: err.message },
+                statusCode: 500,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               component.setStatus("error", { message: err.message || "Request failed." });
             }
           },
           onAdditionalDetails: async (sdkState: any, component: any) => {
             component.setStatus("loading");
+            const t0 = Date.now();
             try {
               const result = await apiPost<any>("/api/checkout/payments/details", sdkState.data);
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/payments/details",
+                direction: "merchant→adyen",
+                request: sdkState.data,
+                response: result,
+                statusCode: 200,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               if (["Authorised", "Received"].includes(result.resultCode)) {
                 setStatus({ msg: "Card saved.", type: "success" });
                 setRefreshKey((k) => k + 1);
@@ -118,6 +177,16 @@ export default function ManagePaymentsPage() {
                 component.setStatus("error", { message: "Could not save card." });
               }
             } catch (err: any) {
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/payments/details",
+                direction: "merchant→adyen",
+                request: sdkState.data,
+                response: { error: err.message },
+                statusCode: 500,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               component.setStatus("error", { message: err.message });
             }
           },
@@ -134,14 +203,35 @@ export default function ManagePaymentsPage() {
             console.log("[disable] storedPaymentMethodId from SDK:", storedPaymentMethodId);
             console.log("[disable] shopperReference (context):", shopperReference);
             console.log("[disable] body being sent to backend:", requestBody);
+            const t0 = Date.now();
             try {
               const result = await apiPost<any>("/api/checkout/disable", requestBody);
               console.log("[disable] backend response:", result);
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/disable",
+                direction: "merchant→adyen",
+                request: requestBody,
+                response: result,
+                statusCode: 200,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               resolve();
               setStatus({ msg: "Card removed.", type: "success" });
               setRefreshKey((k) => k + 1);
             } catch (err: any) {
               console.error("[disable] backend error:", err);
+              setApiCalls(prev => [...prev, {
+                method: "POST",
+                endpoint: "/api/checkout/disable",
+                direction: "merchant→adyen",
+                request: requestBody,
+                response: { error: err.message },
+                statusCode: 500,
+                latencyMs: Date.now() - t0,
+                timestamp: new Date().toISOString(),
+              }]);
               setStatus({ msg: "Could not remove card: " + err.message, type: "error" });
               reject();
             }
@@ -198,6 +288,8 @@ export default function ManagePaymentsPage() {
           <div ref={containerRef} className="min-h-[100px]" />
         )}
       </div>
+
+      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }
