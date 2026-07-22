@@ -7,6 +7,7 @@ interface PageHeaderProps {
   backHref?: string;
   backLabel?: string;
   right?: React.ReactNode;
+  showBack?: boolean;
 }
 
 export default function PageHeader({
@@ -15,6 +16,7 @@ export default function PageHeader({
   backHref = "/",
   backLabel = "Dashboard",
   right,
+  showBack = true,
 }: PageHeaderProps) {
   return (
     <header className="relative mb-12 noise-overlay">
@@ -29,26 +31,30 @@ export default function PageHeader({
       <div className="flex items-start gap-8 pt-8">
         {/* Back button - left aligned */}
         <div className="flex-none pt-2">
-          <Link
-            href={backHref}
-            className="group inline-flex items-center gap-2.5 px-4 py-2.5 
-                       font-mono text-[0.6875rem] font-bold tracking-widest uppercase
-                       text-gray-700 dark:text-[#00d4ff]
-                       bg-gray-50 dark:bg-[#0a0f1e]
-                       border-2 border-gray-300 dark:border-[#1a2332]
-                       rounded-none
-                       transition-all duration-200
-                       hover:border-gray-500 dark:hover:border-[#00d4ff]
-                       hover:-translate-x-1.5
-                       hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]
-                       dark:hover:shadow-[4px_4px_0_0_rgba(0,212,255,0.2)]
-                       no-underline
-                       relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00d4ff]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 relative z-10" />
-            <span className="hidden sm:inline relative z-10">{backLabel}</span>
-          </Link>
+          {showBack ? (
+            <Link
+              href={backHref}
+              className="group inline-flex items-center gap-2.5 px-4 py-2.5 
+                         font-mono text-[0.6875rem] font-bold tracking-widest uppercase
+                         text-gray-700 dark:text-[#00d4ff]
+                         bg-gray-50 dark:bg-[#0a0f1e]
+                         border-2 border-gray-300 dark:border-[#1a2332]
+                         rounded-none
+                         transition-all duration-200
+                         hover:border-gray-500 dark:hover:border-[#00d4ff]
+                         hover:-translate-x-1.5
+                         hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]
+                         dark:hover:shadow-[4px_4px_0_0_rgba(0,212,255,0.2)]
+                         no-underline
+                         relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00d4ff]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 relative z-10" />
+              <span className="hidden sm:inline relative z-10">{backLabel}</span>
+            </Link>
+          ) : (
+            <div className="w-[120px]" aria-hidden="true" />
+          )}
         </div>
 
         {/* Title - centered and dominant */}
