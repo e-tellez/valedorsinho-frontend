@@ -171,7 +171,8 @@ export default function WebhooksPage() {
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [detailMap, setDetailMap] = useState<Record<string, WebhookDetail>>({});
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailLoadingMap, setDetailLoadingMap] = useState<Record<string, boolean>>({});
+  const [detailErrorMap, setDetailErrorMap] = useState<Record<string, string>>({});
 
   const webhookBaseUrl = process.env.NEXT_PUBLIC_VALEDORSINHO_API_URL ?? "";
   const isLocalhost = webhookBaseUrl.includes("localhost") || webhookBaseUrl === "";
@@ -231,6 +232,24 @@ export default function WebhooksPage() {
   // -------------------------------------------------------------------------
   // Row expansion — fetch detail on first open
   // -------------------------------------------------------------------------
+  async function fetchDetail(id: string) {
+    setDetailErrorMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setDetailLoadingMap((prev) => ({ ...prev, [id]: true }));
+    try {
+      const detail = await apiGet<WebhookDetail>(`/api/webhooks/${id}`);
+      setDetailMap((prev) => ({ ...prev, [id]: detail }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load payload.";
+      setDetailErrorMap((prev) => ({ ...prev, [id]: message }));
+    } finally {
+      setDetailLoadingMap((prev) => ({ ...prev, [id]: false }));
+    }
+  }
+
   async function handleRowClick(id: string) {
     if (expandedId === id) {
       setExpandedId(null);
@@ -239,17 +258,10 @@ export default function WebhooksPage() {
 
     setExpandedId(id);
 
+    // If already successfully loaded, just expand without re-fetching.
     if (detailMap[id]) return;
 
-    setDetailLoading(true);
-    try {
-      const detail = await apiGet<WebhookDetail>(`/api/webhooks/${id}`);
-      setDetailMap((prev) => ({ ...prev, [id]: detail }));
-    } catch {
-      // leave detailMap empty for this id — show error inline
-    } finally {
-      setDetailLoading(false);
-    }
+    await fetchDetail(id);
   }
 
   // -------------------------------------------------------------------------
@@ -352,6 +364,8 @@ export default function WebhooksPage() {
           {webhooks.map((w) => {
             const isExpanded = expandedId === w.id;
             const detail = detailMap[w.id];
+            const isDetailLoading = detailLoadingMap[w.id] ?? false;
+            const detailError = detailErrorMap[w.id];
 
             return (
               <div key={w.id} className="border-b border-[#f5f5f5] dark:border-slate-700 last:border-b-0">
@@ -420,12 +434,20 @@ export default function WebhooksPage() {
                 {/* Expanded detail */}
                 {isExpanded && (
                   <div className="border-t border-[#e8f0fe] dark:border-slate-700 bg-[#f8fbff] dark:bg-slate-900/40 px-4 py-4">
-                    {detailLoading && !detail && (
+                    {isDetailLoading && (
                       <div className="h-20 bg-[#e8f0fe] dark:bg-slate-700 rounded-lg animate-pulse" />
                     )}
 
-                    {!detailLoading && !detail && (
-                      <p className="text-[0.82rem] text-red-600">Failed to load payload.</p>
+                    {!isDetailLoading && detailError && (
+                      <p className="text-[0.82rem] text-red-600">
+                        {detailError}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); fetchDetail(w.id); }}
+                          className="ml-2 underline hover:no-underline"
+                        >
+                          Retry
+                        </button>
+                      </p>
                     )}
 
                     {detail && (
@@ -447,12 +469,16 @@ export default function WebhooksPage() {
                         </div>
 
                         {/* Raw payload */}
-                        <div className="relative">
-                          <PreviewCard title="Raw Payload" initialHtml={syntaxHighlight(detail.payload)} />
-                          <div className="absolute top-2 right-2">
-                            <CopyButton value={JSON.stringify(detail.payload, null, 2)} />
+                        {detail.payload ? (
+                          <div className="relative">
+                            <PreviewCard title="Raw Payload" initialHtml={syntaxHighlight(detail.payload)} />
+                            <div className="absolute top-2 right-2">
+                              <CopyButton value={JSON.stringify(detail.payload, null, 2)} />
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <p className="text-[0.82rem] text-[#888] dark:text-slate-500 italic">No payload stored for this notification.</p>
+                        )}
                       </div>
                     )}
                   </div>

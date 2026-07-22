@@ -1,4 +1,5 @@
 export function syntaxHighlight(json: unknown): string {
+  if (json === undefined || json === null) return String(json ?? "null");
   let str = JSON.stringify(json, null, 2);
   str = str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return str.replace(
