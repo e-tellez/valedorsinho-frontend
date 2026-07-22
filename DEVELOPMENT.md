@@ -278,23 +278,37 @@ http.get("/api/your-endpoint", async () => {
 }),
 ```
 
-### Step 7 — Display API calls with ApiCallCard
+### Step 7 — Display API calls with ApiCallPanel
 
-Use `ApiCallCard` (never `PreviewCard`) to display API inspector data:
+Use `ApiCallPanel` to render a fixed side-panel that lists all API calls made by a page. Never render `ApiCallCard` entries inline — always go through `ApiCallPanel`. The caller specifies which side of the screen to pin it to.
 
 ```tsx
-import ApiCallCard from "@/components/adyen/shared/ApiCallCard";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 
-<ApiCallCard
-  method="POST"
-  endpoint="/v1/yourEndpoint"
-  statusCode={200}
-  latencyMs={latency}
-  timestamp={new Date().toISOString()}
-  request={requestBody}
-  response={responseData}
-/>
+// In the component:
+const [apiCalls, setApiCalls] = useState<ApiCallEntry[]>([]);
+
+// Wrap each apiGet / apiPost with timing and push an entry:
+const t0 = Date.now();
+const result = await apiPost<MyResult>("/api/your-endpoint", requestBody);
+setApiCalls(prev => [...prev, {
+  method: "POST",
+  endpoint: "/api/your-endpoint",
+  direction: "merchant→adyen",
+  request: requestBody,
+  response: result,
+  statusCode: 200,
+  latencyMs: Date.now() - t0,
+  timestamp: new Date().toISOString(),
+}]);
+
+// In JSX — place after the main content div:
+<ApiCallPanel side="right" calls={apiCalls} />
+// or side="left" — the panel is hidden automatically when calls is empty.
 ```
+
+> **Never use `PreviewCard` for API call data.** `PreviewCard` is for non-API-call raw JSON display only.
 
 ### Step 8 — Update the API contract
 
@@ -316,7 +330,8 @@ Open a PR into your parent epic branch. See `CONTRIBUTING.md` for PR naming and 
 
 | Component | Import path | When to use |
 |---|---|---|
-| `ApiCallCard` | `@/components/adyen/shared/ApiCallCard` | Display any API request/response pair |
+| `ApiCallCard` | `@/components/adyen/shared/ApiCallCard` | Low-level card — **do not use directly in pages; use `ApiCallPanel` instead** |
+| `ApiCallPanel` | `@/components/adyen/shared/ApiCallPanel` | Fixed side-panel for API call history — `side="left"\|"right"`, `calls={apiCalls}` |
 | `PageHeader` | `@/components/adyen/shared/PageHeader` | Every page header (title, back button) |
 | `StatusBanner` | `@/components/adyen/shared/StatusBanner` | Success / error / info messages |
 | `DashCard` | `@/components/adyen/shared/DashCard` | Dashboard feature cards |
