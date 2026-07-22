@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { syntaxHighlight } from "@/lib/adyen/syntaxHighlight";
+import PageHeader from "@/components/adyen/shared/PageHeader";
 
 interface PaymentResultData {
   success: boolean;
@@ -51,52 +52,56 @@ function TerminalPaymentResultPageInner() {
     );
   }
 
-  const backHref = `/terminal-payments/make-payment?terminalId=${encodeURIComponent(terminalId)}&merchantAccount=${encodeURIComponent(merchantAccount)}`;
+  const makePaymentHref = `/terminal-payments/make-payment?terminalId=${encodeURIComponent(terminalId)}&merchantAccount=${encodeURIComponent(merchantAccount)}`;
   const hasDecoded = data.decodedAdditionalResponse != null;
 
   return (
     <div className={`w-full ${hasDecoded ? "max-w-[1400px]" : "max-w-[900px]"}`}>
-      {/* Header row: title on the left, buttons aligned to the right at the same level */}
-      <div className="flex items-center justify-between gap-4 mb-5">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payment Result</h1>
-          <p className="text-sm text-gray-500">Terminal API response for your payment request.</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <Link href={backHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-3 text-xs py-1!">
+      <PageHeader
+        title="Payment Result"
+        subtitle="Terminal API response for your payment request."
+        backHref="/terminal-payments"
+        backLabel="Terminal Payments"
+      />
+
+      {/* Banner row: Make Another Payment button on the left, result banner on the right */}
+      <div className="flex gap-5 items-start mb-5">
+        {/* Left: action button */}
+        <div className="shrink-0 pt-1">
+          <Link
+            href={makePaymentHref}
+            className="btn-primary inline-flex! items-center! justify-center! w-auto! px-4 text-sm"
+          >
             &larr; Make Another Payment
           </Link>
-          <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-3 text-xs py-1!">
-            &larr; Back to Terminal Payments
-          </Link>
-        </div>
-      </div>
-
-      {/* Banner + Summary */}
-      <div className={`max-w-[500px] mx-auto rounded-xl border overflow-hidden mb-5 ${data.success ? "border-green-200" : "border-red-200"}`}>
-        <div className={`flex items-center justify-center gap-3 px-6 py-4 text-white ${data.success ? "bg-green-600" : "bg-red-600"}`}>
-          <span className="text-2xl">{data.success ? "\u2713" : "\u2717"}</span>
-          <span className="text-lg font-bold">{data.resultTitle}</span>
         </div>
 
-        {data.resultMessage && (
-          <div className="text-center text-sm text-gray-500 px-5 pt-2">{data.resultMessage}</div>
-        )}
-
-        {data.paymentSummary && data.paymentSummary.length > 0 && (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2.5 px-5 py-4">
-            {data.paymentSummary.map((item, i) => (
-              <div key={i}>
-                <div className="text-[0.68rem] font-semibold text-gray-400 uppercase tracking-wider">{item.label}</div>
-                <div className="text-sm font-semibold text-gray-900 mt-0.5">{item.value}</div>
-              </div>
-            ))}
+        {/* Right: result banner + summary */}
+        <div className={`flex-1 rounded-xl border overflow-hidden ${data.success ? "border-green-200" : "border-red-200"}`}>
+          <div className={`flex items-center justify-center gap-3 px-6 py-4 text-white ${data.success ? "bg-green-600" : "bg-red-600"}`}>
+            <span className="text-2xl">{data.success ? "\u2713" : "\u2717"}</span>
+            <span className="text-lg font-bold">{data.resultTitle}</span>
           </div>
-        )}
+
+          {data.resultMessage && (
+            <div className="text-center text-sm text-gray-500 px-5 pt-2 pb-3">{data.resultMessage}</div>
+          )}
+
+          {data.paymentSummary && data.paymentSummary.length > 0 && (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2.5 px-5 py-4">
+              {data.paymentSummary.map((item, i) => (
+                <div key={i}>
+                  <div className="text-[0.68rem] font-semibold text-gray-400 uppercase tracking-wider">{item.label}</div>
+                  <div className="text-sm font-semibold text-gray-900 mt-0.5">{item.value}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Two-column: full response + decoded */}
-      <div className={`grid gap-5 mt-5 ${hasDecoded ? "grid-cols-2" : "grid-cols-1"}`}>
+      <div className={`grid gap-5 ${hasDecoded ? "grid-cols-2" : "grid-cols-1"}`}>
         {/* Full Response */}
         {data.responseJson && (
           <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-sm overflow-y-auto max-h-[600px]">
