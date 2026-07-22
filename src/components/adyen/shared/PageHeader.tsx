@@ -7,6 +7,7 @@ interface PageHeaderProps {
   backHref?: string;
   backLabel?: string;
   right?: React.ReactNode;
+  left?: React.ReactNode;
   showBack?: boolean;
 }
 
@@ -16,6 +17,7 @@ export default function PageHeader({
   backHref = "/",
   backLabel = "Dashboard",
   right,
+  left,
   showBack = true,
 }: PageHeaderProps) {
   return (
@@ -29,9 +31,9 @@ export default function PageHeader({
       <div className="absolute -top-1 -right-1 w-6 h-6 border-r-2 border-t-2 border-[#00d4ff]/30" />
       
       <div className="flex items-start gap-8 pt-8">
-        {/* Back button - left aligned */}
+        {/* Left slot - back button or custom content */}
         <div className="flex-none pt-2">
-          {showBack ? (
+          {left !== undefined ? left : showBack ? (
             <Link
               href={backHref}
               className="group inline-flex items-center gap-2.5 px-4 py-2.5 
