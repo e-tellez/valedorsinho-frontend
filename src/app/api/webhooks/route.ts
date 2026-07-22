@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * GET /api/webhooks?limit=25&offset=0
  *
  * Returns a paginated list of Adyen webhook notifications stored for the
- * currently authenticated user in the `webhook_notifications` Supabase table.
+ * currently authenticated user in the `webhooks` Supabase table.
  *
  * Response: { items: WebhookItem[] }
  */
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get("offset") ?? "0", 10);
 
     const { data, error } = await supabase
-      .from("webhook_notifications")
+      .from("webhooks")
       .select(
         "id, user_id, merchant_account, event_code, psp_reference, merchant_reference, amount_value, amount_currency, success, live, received_at, expires_at",
       )

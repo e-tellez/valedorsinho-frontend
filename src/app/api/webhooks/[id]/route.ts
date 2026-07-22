@@ -25,7 +25,7 @@ export async function GET(
     }
 
     const { data, error } = await supabase
-      .from("webhook_notifications")
+      .from("webhooks")
       .select("*")
       .eq("id", params.id)
       .eq("user_id", user.id)
