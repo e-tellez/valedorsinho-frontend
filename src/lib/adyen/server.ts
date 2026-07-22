@@ -171,6 +171,40 @@ export async function adyenManagement<T>(
   return json as T;
 }
 
+/**
+ * POST to the Adyen Management API (/v3/...).
+ * Throws AdyenRouteError on non-2xx responses.
+ */
+export async function adyenManagementPost<T>(
+  creds: AdyenCreds,
+  path: string,
+  body: unknown,
+): Promise<T> {
+  const url = `${managementBase(creds.environment)}${path}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-API-key": creds.apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    console.error(`[adyen-management] POST ${path} → ${res.status}`, JSON.stringify(json));
+    const message =
+      (json as any)?.message ??
+      (json as any)?.errorCode ??
+      `Adyen Management error ${res.status}`;
+    throw new AdyenRouteError(res.status, "ADYEN_MANAGEMENT_ERROR", message);
+  }
+
+  return json as T;
+}
+
 // ---------------------------------------------------------------------------
 // Terminal Cloud API — used for in-person NEXO payment requests
 // ---------------------------------------------------------------------------
