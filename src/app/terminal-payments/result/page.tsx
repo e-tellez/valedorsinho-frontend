@@ -61,11 +61,11 @@ function TerminalPaymentResultPageInner() {
         title="Payment Result"
         subtitle="Terminal API response for your payment request."
         left={
-          <div className="flex flex-col gap-2">
-            <Link href={makePaymentHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-4 text-sm">
+          <div className="flex flex-col gap-1.5">
+            <Link href={makePaymentHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-3 py-1.5! text-xs">
               &larr; Make Another Payment
             </Link>
-            <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-4 text-sm">
+            <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-3 py-1.5! text-xs">
               &larr; Back to Terminal Payments
             </Link>
           </div>
