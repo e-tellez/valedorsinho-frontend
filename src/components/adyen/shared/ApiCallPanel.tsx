@@ -1,6 +1,6 @@
 "use client";
 
-import ApiCallCard, { ApiCallEntry } from "./ApiCallCard";
+import ApiCallCard, { type ApiCallEntry } from "./ApiCallCard";
 
 // ---------------------------------------------------------------------------
 // ApiCallPanel

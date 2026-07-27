@@ -57,6 +57,7 @@ src/
   middleware.ts             # Supabase JWT guard for /valedorsinho/*; legacy JWT for others
 ```
 
+
 ## Frontend-Only Demos
 
 - `src/app/valedorsinho/ucp-agentic-commerce/` — UCP Agentic Commerce lifecycle demo ported from a standalone Vite app into Next.js. It is frontend-only and does not change `docs/api-contracts/valedorsinho.md`.
