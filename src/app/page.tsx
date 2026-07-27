@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Bot,
   Network,
+  Smartphone,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/adyen/shared/ThemeToggle";
 import DashCard from "@/components/adyen/shared/DashCard";
@@ -67,6 +68,7 @@ export default function DashboardPage() {
             <DashCard href="/payload-suggested" icon={<FileText className="w-full h-full" />} iconClass="bg-gray-100 dark:bg-[#0a0f1e] text-[#00d4ff] dark:text-[#00d4ff]" title="Payload Suggested" description="Recommended payloads per vertical." badge="WIP" badgeClass="bg-transparent border-[#ffaa00] text-[#ffaa00]" />
             <DashCard href="/payload-validator" icon={<CheckSquare className="w-full h-full" />} iconClass="bg-gray-100 dark:bg-[#0a0f1e] text-[#00d4ff] dark:text-[#00d4ff]" title="Payload Validator" description="Validate payloads against Adyen OpenAPI specs." badge="WIP" badgeClass="bg-transparent border-[#ffaa00] text-[#ffaa00]" />
             <DashCard href="/ucp-agentic-commerce" icon={<Bot className="w-full h-full" />} iconClass="bg-gray-100 dark:bg-[#0a0f1e] text-[#c084fc] dark:text-[#c084fc]" title="UCP Agentic Commerce" description="Interactive AI-agent commerce lifecycle demo." badge="Demo" badgeClass="bg-transparent border-[#c084fc] text-[#c084fc]" />
+            <DashCard href="/apple-pay-msi" icon={<Smartphone className="w-full h-full" />} iconClass="bg-gray-100 dark:bg-[#0a0f1e] text-[#00d4ff] dark:text-[#00d4ff]" title="Apple Pay + MSI" description="Apple Pay with Meses Sin Intereses (3/6/9/12 months) for Mexico." badge="PoC" badgeClass="bg-transparent border-[#00d4ff] text-[#00d4ff]" />
           </div>
         </div>
 
