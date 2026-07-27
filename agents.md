@@ -133,7 +133,7 @@ Commits: Conventional Commits `type(scope): description` — `feat`, `fix`, `cho
 
 | Epic | Routes |
 |---|---|
-| `valedorsinho/epic/digital` | `checkout/`, `payload-suggested/`, `payload-validator/`, `ucp-agentic-commerce/` |
+| `valedorsinho/epic/digital` | `checkout/`, `payload-suggested/`, `payload-validator/`, `ucp-agentic-commerce/`, `apple-pay-msi/` |
 | `valedorsinho/epic/unified-commerce` | `terminal-payments/`, `terminal-fleet/`, `nfc-formatter/` |
 | `valedorsinho/epic/tools-and-setup` | `setup/`, `management-api/`, `webhooks/` |
 | `valedorsinho/epic/global-ui` | Theme toggle, layout, navigation, ApiCallCard |
