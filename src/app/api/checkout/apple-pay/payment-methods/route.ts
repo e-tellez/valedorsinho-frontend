@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       merchantAccount: creds.merchantAccount,
       countryCode,
       // Non-zero amount — Adyen may suppress wallet methods (Apple Pay, Google Pay)
-      // when value is 0. Use 100 minor units (MXN 1.00) as a safe default for
+      // when value is 0. Use 1000 minor units (MXN 10.00) as a safe default for
       // the payment-methods listing call.
-      amount: { value: 100, currency },
+      amount: { value: 1000, currency },
       channel: "Web",
     };
 
