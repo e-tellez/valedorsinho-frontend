@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Smartphone, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { Smartphone, CheckCircle, XCircle, AlertTriangle, Loader2, Eye } from "lucide-react";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
 import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
@@ -15,6 +15,8 @@ interface ApplePayConfig {
   merchantId: string;
   merchantName: string;
   brands: string[];
+  /** true when config came from preview fallback (Apple Pay not in /paymentMethods) */
+  isPreview?: boolean;
 }
 
 interface PaymentResult {
@@ -79,6 +81,9 @@ function now() {
 export default function ApplePayMsiPage() {
   const [applePaySupported, setApplePaySupported] = useState<boolean | null>(null);
   const [applePayConfig, setApplePayConfig] = useState<ApplePayConfig | null>(null);
+  // configWarning = soft notice (Apple Pay not yet enabled in CA, page still functional)
+  const [configWarning, setConfigWarning] = useState<string | null>(null);
+  // configError = hard failure (API call failed entirely)
   const [configError, setConfigError] = useState<string | null>(null);
 
   const [amountMXN, setAmountMXN] = useState("1000.00");
@@ -100,10 +105,17 @@ export default function ApplePayMsiPage() {
     const t0 = Date.now();
     const requestBody = { countryCode: "MX", currency: "MXN" };
     try {
-      const data = await apiPost<{ requestBody: unknown; response: { paymentMethods?: Array<{ type: string; configuration?: { merchantId?: string; merchantName?: string }; brands?: string[] }> } }>(
-        "/api/checkout/apple-pay/payment-methods",
-        requestBody,
-      );
+      const data = await apiPost<{
+        requestBody: unknown;
+        response: {
+          paymentMethods?: Array<{
+            type: string;
+            name?: string;
+            configuration?: { merchantId?: string; merchantName?: string };
+            brands?: string[];
+          }>;
+        };
+      }>("/api/checkout/apple-pay/payment-methods", requestBody);
 
       addApiCall({
         method: "POST",
@@ -117,17 +129,32 @@ export default function ApplePayMsiPage() {
       });
 
       const applePayMethod = data.response.paymentMethods?.find((m) => m.type === "applepay");
+
       if (applePayMethod?.configuration) {
+        // Real Apple Pay config returned — use live values
         setApplePayConfig({
           merchantId: applePayMethod.configuration.merchantId ?? "",
           merchantName: applePayMethod.configuration.merchantName ?? "",
           brands: applePayMethod.brands ?? ["visa", "masterCard", "amex"],
+          isPreview: false,
         });
       } else {
-        setConfigError("Apple Pay is not enabled for this merchant account. Enable it in the Adyen Customer Area.");
+        // Apple Pay not (yet) enabled in the Adyen Customer Area.
+        // Fall into preview mode so the page is still fully navigable in any browser.
+        setApplePayConfig({
+          merchantId: "merchant.adyen.yourdomain",
+          merchantName: "Your Store",
+          brands: ["visa", "masterCard", "amex"],
+          isPreview: true,
+        });
+        setConfigWarning(
+          "applepay was not returned by /paymentMethods. " +
+          "Make sure Apple Pay is enabled in the Adyen Customer Area and this domain is registered. " +
+          "The page is in Preview Mode — all payloads are shown with placeholder values.",
+        );
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load Apple Pay configuration.";
+      const msg = err instanceof Error ? err.message : "Failed to load payment methods.";
       setConfigError(msg);
       addApiCall({
         method: "POST",
@@ -143,7 +170,6 @@ export default function ApplePayMsiPage() {
   }, []);
 
   useEffect(() => {
-    // Check Apple Pay support in this browser
     setApplePaySupported(
       typeof window !== "undefined" &&
         typeof window.ApplePaySession !== "undefined" &&
@@ -153,7 +179,66 @@ export default function ApplePayMsiPage() {
   }, [fetchApplePayConfig]);
 
   // -------------------------------------------------------------------------
-  // Step 2 + 3: Trigger Apple Pay session
+  // Preview Payloads — generates example API call entries for demo purposes.
+  // Available in any browser / when Apple Pay is not configured.
+  // -------------------------------------------------------------------------
+  function handlePreviewPayloads() {
+    const amountInMinorUnits = Math.round(parseFloat(amountMXN) * 100);
+    const config = applePayConfig!;
+    const domainName = typeof window !== "undefined" ? window.location.hostname : "yourdomain.com";
+
+    addApiCall({
+      method: "POST",
+      endpoint: "/v71/applePay/sessions  [PREVIEW]",
+      direction: "merchant→adyen",
+      timestamp: now(),
+      request: {
+        merchantAccount: "<your merchant account>",
+        displayName: config.merchantName,
+        domainName,
+        merchantIdentifier: config.merchantId,
+      },
+      response: {
+        "epochTimestamp": 1234567890000,
+        "expiresAt": 1234571490000,
+        "merchantSessionIdentifier": "SSH1234ABCD…",
+        "nonce": "a1b2c3d4",
+        "merchantIdentifier": config.merchantId,
+        "domainName": domainName,
+        "displayName": config.merchantName,
+        "signature": "<Apple-signed opaque blob — passed as-is to completeMerchantValidation()>",
+      },
+    });
+
+    addApiCall({
+      method: "POST",
+      endpoint: "/v71/payments  [PREVIEW]",
+      direction: "merchant→adyen",
+      timestamp: now(),
+      request: {
+        merchantAccount: "<your merchant account>",
+        paymentMethod: {
+          type: "applepay",
+          applePayToken: "<btoa(JSON.stringify(paymentData)) — base64-encoded Apple Pay token>",
+        },
+        amount: { value: amountInMinorUnits, currency: "MXN" },
+        reference: `apple-pay-msi-<uuid>`,
+        countryCode: "MX",
+        channel: "Web",
+        installments: { value: installments },
+        returnUrl: `https://${domainName}/apple-pay-msi`,
+      },
+      response: {
+        resultCode: "Authorised",
+        pspReference: "ABCD1234567890EF",
+        amount: { value: amountInMinorUnits, currency: "MXN" },
+        merchantReference: "apple-pay-msi-<uuid>",
+      },
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Step 2 + 3: Trigger real Apple Pay session (Safari only)
   // -------------------------------------------------------------------------
   function handleApplePay() {
     if (!applePayConfig || !window.ApplePaySession) return;
@@ -183,7 +268,7 @@ export default function ApplePayMsiPage() {
     // -----------------------------------------------------------------------
     session.onvalidatemerchant = async (event) => {
       const t0 = Date.now();
-      const requestBody = {
+      const reqBody = {
         validationURL: event.validationURL,
         merchantIdentifier: applePayConfig.merchantId,
         displayName: applePayConfig.merchantName,
@@ -193,7 +278,7 @@ export default function ApplePayMsiPage() {
       try {
         const data = await apiPost<{ merchantSession: unknown; requestBody: unknown; response: unknown }>(
           "/api/checkout/apple-pay/validate-merchant",
-          requestBody,
+          reqBody,
         );
 
         addApiCall({
@@ -222,7 +307,7 @@ export default function ApplePayMsiPage() {
           statusCode: 500,
           latencyMs: Date.now() - t0,
           timestamp: now(),
-          request: requestBody,
+          request: reqBody,
           response: { error: msg },
         });
         setLoading(false);
@@ -242,7 +327,7 @@ export default function ApplePayMsiPage() {
       // 2. btoa() (base64-encode) the resulting string.
       const applePayToken = btoa(JSON.stringify(paymentData));
 
-      const requestBody = {
+      const reqBody = {
         applePayToken,
         amountValue: Math.round(parseFloat(amountMXN) * 100),
         currency: "MXN",
@@ -254,7 +339,7 @@ export default function ApplePayMsiPage() {
         const data = await apiPost<{
           requestBody: unknown;
           response: { resultCode?: string; pspReference?: string };
-        }>("/api/checkout/apple-pay/payments", requestBody);
+        }>("/api/checkout/apple-pay/payments", reqBody);
 
         addApiCall({
           method: "POST",
@@ -264,8 +349,8 @@ export default function ApplePayMsiPage() {
           latencyMs: Date.now() - t0,
           timestamp: now(),
           request: {
-            ...data.requestBody as Record<string, unknown>,
-            // Redact the full token in the displayed payload for readability.
+            ...(data.requestBody as Record<string, unknown>),
+            // Redact the full token for readability.
             paymentMethod: {
               type: "applepay",
               applePayToken: "<base64-encoded paymentData — redacted for display>",
@@ -298,7 +383,7 @@ export default function ApplePayMsiPage() {
           latencyMs: Date.now() - t0,
           timestamp: now(),
           request: {
-            ...requestBody,
+            ...reqBody,
             applePayToken: "<base64-encoded paymentData — redacted for display>",
           },
           response: { error: msg },
@@ -321,10 +406,8 @@ export default function ApplePayMsiPage() {
   // Render
   // -------------------------------------------------------------------------
 
-  const amountDisplay = parseFloat(amountMXN || "0").toLocaleString("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  });
+  const isPreviewMode = applePayConfig?.isPreview === true;
+  const canTriggerRealPayment = applePaySupported === true && !isPreviewMode;
 
   return (
     <div className="w-full max-w-[720px]">
@@ -335,15 +418,37 @@ export default function ApplePayMsiPage() {
         backLabel="Dashboard"
       />
 
-      {/* Browser / device support banner */}
+      {/* Non-Safari browser notice */}
       {applePaySupported === false && (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 px-4 py-3">
+        <div className="mb-4 flex items-start gap-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-3">
+          <AlertTriangle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Non-Safari browser — Preview Mode active</p>
+            <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
+              The Apple Pay payment sheet requires Safari on macOS or iOS. Use the <span className="font-semibold">Preview Payloads</span> button below to generate example API call entries and inspect the full flow in any browser.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Soft warning: Apple Pay not in /paymentMethods (CA config needed) */}
+      {configWarning && (
+        <div className="mb-4 flex items-start gap-3 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 px-4 py-3">
           <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Apple Pay not available in this browser</p>
-            <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-              Apple Pay requires Safari on macOS or iOS. The configuration panel and payload preview below are still functional — open this page in Safari on an Apple device to trigger a real payment sheet.
-            </p>
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Apple Pay not yet configured — Preview Mode</p>
+            <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{configWarning}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Hard error: API call itself failed */}
+      {configError && (
+        <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/40 px-4 py-3">
+          <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-red-800 dark:text-red-300">API error</p>
+            <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">{configError}</p>
           </div>
         </div>
       )}
@@ -375,23 +480,21 @@ export default function ApplePayMsiPage() {
         </div>
 
         {/* Apple Pay config info */}
-        {configError ? (
-          <div className="flex items-start gap-3 px-6 py-4 bg-red-50 dark:bg-red-950/30 border-b border-red-200 dark:border-red-800">
-            <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400">Configuration error</p>
-              <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">{configError}</p>
-            </div>
-          </div>
-        ) : applePayConfig ? (
+        {applePayConfig ? (
           <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700 grid grid-cols-2 gap-3">
             <div>
               <dt className="text-[0.68rem] font-semibold uppercase tracking-widest text-gray-400">Merchant ID</dt>
-              <dd className="font-mono text-xs text-gray-800 dark:text-slate-200 break-all mt-0.5">{applePayConfig.merchantId}</dd>
+              <dd className={`font-mono text-xs break-all mt-0.5 ${isPreviewMode ? "text-amber-600 dark:text-amber-400 italic" : "text-gray-800 dark:text-slate-200"}`}>
+                {applePayConfig.merchantId}
+                {isPreviewMode && <span className="ml-1 not-italic">(placeholder)</span>}
+              </dd>
             </div>
             <div>
               <dt className="text-[0.68rem] font-semibold uppercase tracking-widest text-gray-400">Display Name</dt>
-              <dd className="font-mono text-xs text-gray-800 dark:text-slate-200 mt-0.5">{applePayConfig.merchantName}</dd>
+              <dd className={`font-mono text-xs mt-0.5 ${isPreviewMode ? "text-amber-600 dark:text-amber-400 italic" : "text-gray-800 dark:text-slate-200"}`}>
+                {applePayConfig.merchantName}
+                {isPreviewMode && <span className="ml-1 not-italic">(placeholder)</span>}
+              </dd>
             </div>
             <div className="col-span-2">
               <dt className="text-[0.68rem] font-semibold uppercase tracking-widest text-gray-400">Accepted networks (credit only)</dt>
@@ -407,12 +510,12 @@ export default function ApplePayMsiPage() {
               </dd>
             </div>
           </div>
-        ) : (
+        ) : !configError ? (
           <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-100 dark:border-slate-700">
             <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-            <span className="text-sm text-gray-500">Loading Apple Pay configuration…</span>
+            <span className="text-sm text-gray-500">Loading payment methods…</span>
           </div>
-        )}
+        ) : null}
 
         {/* Payment form */}
         <div className="px-6 py-6 flex flex-col gap-5">
@@ -432,7 +535,9 @@ export default function ApplePayMsiPage() {
                 className="w-full pl-7 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#00d4ff]/40"
               />
             </div>
-            <p className="text-[0.7rem] text-gray-400">Sent to Adyen as <span className="font-mono">{Math.round(parseFloat(amountMXN || "0") * 100)}</span> minor units (centavos)</p>
+            <p className="text-[0.7rem] text-gray-400">
+              Sent to Adyen as <span className="font-mono">{Math.round(parseFloat(amountMXN || "0") * 100)}</span> minor units (centavos)
+            </p>
           </div>
 
           {/* Installments */}
@@ -461,30 +566,45 @@ export default function ApplePayMsiPage() {
             </p>
           </div>
 
-          {/* Apple Pay button or notice */}
-          {applePaySupported ? (
-            <button
-              type="button"
-              onClick={handleApplePay}
-              disabled={loading || !applePayConfig}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-black hover:bg-gray-900 active:bg-gray-800 text-white font-semibold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Smartphone className="w-5 h-5" />
-              )}
-              {loading ? "Processing…" : "Pay with Apple Pay"}
-            </button>
-          ) : (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-600 p-5 text-center">
-              <Smartphone className="w-8 h-8 text-gray-300 dark:text-slate-600 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400">Apple Pay button</p>
-              <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
-                Open in Safari on macOS / iOS to see the real Apple Pay button and payment sheet
-              </p>
-            </div>
-          )}
+          {/* Action buttons */}
+          <div className="flex flex-col gap-2">
+            {/* Real Apple Pay button — Safari + real config only */}
+            {canTriggerRealPayment && (
+              <button
+                type="button"
+                onClick={handleApplePay}
+                disabled={loading || !applePayConfig}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-black hover:bg-gray-900 active:bg-gray-800 text-white font-semibold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Smartphone className="w-5 h-5" />
+                )}
+                {loading ? "Processing…" : "Pay with Apple Pay"}
+              </button>
+            )}
+
+            {/* Preview Payloads button — always available */}
+            {applePayConfig && (
+              <button
+                type="button"
+                onClick={handlePreviewPayloads}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-[#00d4ff]/40 hover:border-[#00d4ff] bg-[#00d4ff]/5 hover:bg-[#00d4ff]/10 text-[#00d4ff] font-semibold text-sm transition-all duration-150"
+              >
+                <Eye className="w-4 h-4" />
+                Preview Payloads (steps 3 &amp; 4)
+              </button>
+            )}
+
+            {/* Placeholder when neither is available yet */}
+            {!applePayConfig && !configError && (
+              <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-600 p-5 text-center">
+                <Loader2 className="w-6 h-6 text-gray-300 dark:text-slate-600 mx-auto mb-2 animate-spin" />
+                <p className="text-xs text-gray-400 dark:text-slate-500">Loading…</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Result banner */}
@@ -535,7 +655,7 @@ export default function ApplePayMsiPage() {
           </li>
           <li className="flex items-start gap-2">
             <span className="font-mono text-[#00d4ff] shrink-0">·</span>
-            <span><span className="font-semibold text-gray-700 dark:text-slate-300">Token encoding:</span> <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">btoa(JSON.stringify(paymentData))</code> — the entire Apple Pay paymentData JSON object is stringified and base64-encoded before sending to Adyen as <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">applePayToken</code>.</span>
+            <span><span className="font-semibold text-gray-700 dark:text-slate-300">Token encoding:</span> <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">btoa(JSON.stringify(paymentData))</code> — the entire Apple Pay paymentData JSON is stringified and base64-encoded before sending to Adyen as <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">applePayToken</code>.</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="font-mono text-[#00d4ff] shrink-0">·</span>
