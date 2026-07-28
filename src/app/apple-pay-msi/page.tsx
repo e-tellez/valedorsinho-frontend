@@ -187,6 +187,9 @@ export default function ApplePayMsiPage() {
     const config = applePayConfig!;
     const domainName = typeof window !== "undefined" ? window.location.hostname : "yourdomain.com";
 
+    // Replace any existing preview entries so repeated clicks don't accumulate
+    setApiCalls((prev) => prev.filter((c) => !c.endpoint.includes("[PREVIEW]")));
+
     addApiCall({
       method: "POST",
       endpoint: "/v71/applePay/sessions  [PREVIEW]",
