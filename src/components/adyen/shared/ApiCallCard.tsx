@@ -150,41 +150,46 @@ export default function ApiCallCard({
 
   return (
     <div className="bg-gray-900 text-gray-100 rounded-lg overflow-hidden font-mono text-sm border border-gray-700/60">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 flex-wrap gap-y-1.5">
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-[0.67rem] font-bold text-white shrink-0 ${METHOD_COLORS[method]}`}
-        >
-          {method}
-        </span>
-
-        <span className="text-[0.78rem] text-gray-200 font-sans flex-1 min-w-0 truncate">
-          {endpoint}
-        </span>
-
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.64rem] font-semibold bg-gray-700 text-gray-300 font-sans whitespace-nowrap shrink-0">
-          {directionLabel}
-        </span>
-
-        {statusCode !== undefined && (
+      {/* Header — two rows */}
+      <div className="px-3 pt-2.5 pb-2 flex flex-col gap-1.5">
+        {/* Row 1: method badge + full endpoint */}
+        <div className="flex items-center gap-2 min-w-0">
           <span
-            className={`inline-flex items-center px-2 py-0.5 rounded text-[0.67rem] font-bold font-sans shrink-0 ${statusBadgeClass(statusCode)}`}
+            className={`inline-flex items-center px-2 py-0.5 rounded text-[0.67rem] font-bold text-white shrink-0 ${METHOD_COLORS[method]}`}
           >
-            {statusCode}
+            {method}
           </span>
-        )}
+          <span className="text-[0.78rem] text-gray-200 font-sans break-all leading-snug">
+            {endpoint}
+          </span>
+        </div>
 
-        {latencyMs !== undefined && (
-          <span className="text-[0.64rem] text-gray-500 font-sans whitespace-nowrap shrink-0">
-            {latencyMs}ms
+        {/* Row 2: direction + status + latency + timestamp */}
+        <div className="flex items-center gap-2 flex-wrap gap-y-1">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.64rem] font-semibold bg-gray-700 text-gray-300 font-sans whitespace-nowrap">
+            {directionLabel}
           </span>
-        )}
 
-        {timestamp && (
-          <span className="text-[0.64rem] text-gray-500 font-sans whitespace-nowrap shrink-0">
-            {formatTime(timestamp)}
-          </span>
-        )}
+          {statusCode !== undefined && (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded text-[0.67rem] font-bold font-sans whitespace-nowrap ${statusBadgeClass(statusCode)}`}
+            >
+              {statusCode}
+            </span>
+          )}
+
+          {latencyMs !== undefined && (
+            <span className="text-[0.64rem] text-gray-500 font-sans whitespace-nowrap">
+              {latencyMs}ms
+            </span>
+          )}
+
+          {timestamp && (
+            <span className="text-[0.64rem] text-gray-500 font-sans whitespace-nowrap">
+              {formatTime(timestamp)}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Collapsible sections */}
