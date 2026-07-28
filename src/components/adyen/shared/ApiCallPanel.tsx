@@ -28,7 +28,11 @@ export default function ApiCallPanel({ calls, side }: ApiCallPanelProps) {
 
   return (
     <div
+<<<<<<< HEAD
+      className={`fixed top-[60px] ${sideClass} w-[420px] max-h-[calc(100vh-60px-1rem)] flex flex-col gap-3 z-40`}
+=======
       className={`fixed top-12 ${sideClass} w-80 max-h-[calc(100vh-5rem)] flex flex-col gap-3 z-50`}
+>>>>>>> develop
     >
       <div className="flex items-center justify-between px-0.5">
         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

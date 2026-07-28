@@ -10,7 +10,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 48px 20px;
+  /* top padding: 56px (fixed header h-14) + 24px gap = 80px */
+  padding: 80px 20px 48px;
   transition: background-color 0.2s ease;
   position: relative;
 }
