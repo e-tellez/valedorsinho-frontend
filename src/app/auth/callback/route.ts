@@ -9,6 +9,9 @@ export async function GET(request: NextRequest) {
   // being used as the redirect base when running behind a reverse proxy.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const code = searchParams.get("code");
+  const providerError = searchParams.get("error");
+  const providerErrorCode = searchParams.get("error_code");
+  const providerErrorDescription = searchParams.get("error_description");
 
   if (code) {
     const supabase = createSupabaseServerClient();
@@ -44,6 +47,20 @@ export async function GET(request: NextRequest) {
       });
       return response;
     }
+
+    console.warn("[auth/callback] Code exchange failed:", {
+      code: error.code,
+      status: error.status,
+      message: error.message,
+    });
+  } else if (providerError || providerErrorCode || providerErrorDescription) {
+    console.warn("[auth/callback] Supabase rejected link:", {
+      error: providerError,
+      code: providerErrorCode,
+      description: providerErrorDescription,
+    });
+  } else {
+    console.warn("[auth/callback] Missing auth code");
   }
 
   return NextResponse.redirect(`${appUrl}/login?error=auth_failed`);
