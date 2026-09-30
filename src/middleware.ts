@@ -8,6 +8,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname === "/login" ||
     pathname === "/auth/callback" ||
+    pathname === "/auth/confirm" ||
     pathname.startsWith("/api/") ||
     // Apple Pay domain verification file must be publicly accessible.
     // Apple contacts this path during merchant validation; it cannot be behind auth.
