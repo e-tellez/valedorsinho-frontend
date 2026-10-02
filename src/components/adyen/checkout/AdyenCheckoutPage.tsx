@@ -287,7 +287,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
   // Render
   // -----------------------------------------------------------------------
   return (
-    <div className="w-full max-w-[1200px]">
+    <div className="w-full max-w-[720px]">
       <PageHeader
         title="Complete Your Order"
         subtitle={`${isDropin ? "Drop-in" : "Components"} • ${flow} Flow`}
@@ -295,10 +295,9 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         backLabel="Back"
       />
 
-      <div className="w-full max-w-[720px]">
-        {/* Main checkout panel */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-8">
-          <StepIndicator currentStep={4} />
+      {/* Main checkout panel */}
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-8">
+        <StepIndicator currentStep={4} />
 
         {/* Order summary */}
         <div className="bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-md px-4 py-3 mb-6 text-sm text-gray-600 dark:text-slate-300">
@@ -329,8 +328,6 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             Pay {state.currency} {displayAmount}
           </button>
         )}
-      </div>
-
       </div>
 
       <ApiCallPanel side="right" calls={apiCalls} />
