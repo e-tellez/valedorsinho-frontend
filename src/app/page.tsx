@@ -17,6 +17,7 @@ import { ThemeToggle } from "@/components/adyen/shared/ThemeToggle";
 import DashCard from "@/components/adyen/shared/DashCard";
 import SystemStatus from "@/components/adyen/shared/SystemStatus";
 import OnboardingBanner from "@/components/adyen/shared/OnboardingBanner";
+import LogoutButton from "@/components/adyen/shared/LogoutButton";
 
 export const metadata: Metadata = {
   title: "Valedorsinho – Dashboard",
@@ -36,6 +37,7 @@ export default function DashboardPage() {
         <div className="absolute -top-2 -right-2 w-8 h-8 border-r-2 border-t-2 border-[#00d4ff]/30" />
         
         <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
+          <LogoutButton />
           <ThemeToggle />
           <SystemStatus />
         </div>
