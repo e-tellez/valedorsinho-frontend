@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiPost } from "@/lib/adyen/api";
+import type { RedirectBody } from "@/lib/adyen/types";
 
 function SessionsRedirectPageInner() {
   const searchParams = useSearchParams();
@@ -16,7 +17,8 @@ function SessionsRedirectPageInner() {
       return;
     }
 
-    apiPost<Record<string, unknown>>("/api/checkout/redirect", { redirectResult })
+    const body: RedirectBody = { redirectResult };
+    apiPost<Record<string, unknown>>("/api/checkout/redirect", body)
       .then((result) => {
         const status = ["Authorised", "Pending", "Received"].includes(result.resultCode as string)
           ? "success"
