@@ -20,20 +20,6 @@ const configHandlers = [
     });
   }),
 
-  http.get("/api/config/setup", async () => {
-    await delay(80);
-    return HttpResponse.json({
-      apiKey: "mock_AQE...",
-      clientKey: "test_MOCK0000000000000000000000000000000",
-      merchantAccount: "MockMerchantECOM",
-      locked: false,
-    });
-  }),
-
-  http.put("/api/config/setup", async () => {
-    await delay(200);
-    return HttpResponse.json({ success: true });
-  }),
 ];
 
 // ---------------------------------------------------------------------------
@@ -303,12 +289,13 @@ const authHandlers = [
     await delay(100);
     return HttpResponse.json({
       role: "im",
-      api_key: "mock_AQE...",
-      client_key: "test_MOCK0000000000000000000000000000000",
-      merchant_account: "MockMerchantECOM",
+      clientKey: "test_MOCK0000000000000000000000000000000",
+      merchantAccount: "MockMerchantECOM",
       environment: "test",
-      is_custom: false,
+      isCustom: true,
       locked: false,
+      apiKeyConfigured: true,
+      canConfigure: true,
     });
   }),
 
@@ -316,12 +303,13 @@ const authHandlers = [
     await delay(200);
     return HttpResponse.json({
       role: "im",
-      api_key: "mock_AQE...",
-      client_key: "test_MOCK0000000000000000000000000000000",
-      merchant_account: "MockMerchantECOM",
+      clientKey: "test_MOCK0000000000000000000000000000000",
+      merchantAccount: "MockMerchantECOM",
       environment: "test",
-      is_custom: true,
+      isCustom: true,
       locked: false,
+      apiKeyConfigured: true,
+      canConfigure: true,
     });
   }),
 ];

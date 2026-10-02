@@ -19,25 +19,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
 
-      const { data: { user } } = await supabase.auth.getUser();
-
-      // A user is new if they have no adyen_configs row yet.
-      // Timestamp heuristics are unreliable: users can take up to 1 hour to
-      // click their OTP link, so created_at vs last_sign_in_at proximity is
-      // not a safe signal.
-      const { data: existingConfig } = user
-        ? await supabase
-            .from("adyen_configs")
-            .select("id")
-            .eq("user_id", user.id)
-            .maybeSingle()
-        : { data: null };
-
-      const destination = !existingConfig
-        ? `${appUrl}/setup?welcome=true`
-        : `${appUrl}/`;
-
-      const response = NextResponse.redirect(destination);
+      const response = NextResponse.redirect(`${appUrl}/`);
       response.cookies.set("vld_session_expires_at", String(expiresAt), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
