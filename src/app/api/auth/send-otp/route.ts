@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const ALLOWED_DOMAIN = "@adyen.com";
-const BACKEND_WARMUP_URL = process.env.ADYEN_BACKEND_URL
-  ? `${process.env.ADYEN_BACKEND_URL}/goodmorning`
+const BACKEND_WARMUP_URL = process.env.VALEDORSINHO_API_URL
+  ? `${process.env.VALEDORSINHO_API_URL}/goodmorning`
   : null;
 
 export async function POST(request: NextRequest) {

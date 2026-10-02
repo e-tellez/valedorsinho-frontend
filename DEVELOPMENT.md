@@ -77,25 +77,21 @@ $$;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
-
--- Adyen credentials table
-CREATE TABLE IF NOT EXISTS adyen_configs (
-  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id          uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  api_key          text NOT NULL DEFAULT '',
-  client_key       text NOT NULL DEFAULT '',
-  merchant_account text NOT NULL DEFAULT '',
-  created_at       timestamptz DEFAULT now(),
-  updated_at       timestamptz DEFAULT now(),
-  UNIQUE(user_id)
-);
-
-ALTER TABLE adyen_configs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users manage own config" ON adyen_configs FOR ALL
-  USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 ```
 
-4. In Authentication → URL Configuration, set **Site URL** to `http://localhost:3000` and add `http://localhost:3000/valedorsinho/auth/callback` to **Redirect URLs**.
+The FastAPI migration runner owns the `adyen_configs` table and restricts it to backend service-role access.
+
+4. In Authentication → URL Configuration, set **Site URL** to `http://localhost:3000` and add `http://localhost:3000/auth/callback` to **Redirect URLs**.
+
+5. In Authentication → Email Templates → Magic Link, replace the confirmation link with a link that opens the app without consuming the token:
+
+```html
+<h2>Sign in to Valedorsinho</h2>
+<p>Click below to continue:</p>
+<p><a href="{{ .SiteURL }}/auth/confirm#token_hash={{ .TokenHash }}">Sign in</a></p>
+```
+
+The confirmation page consumes the one-time token only after the user presses **Confirm sign in**, preventing automated email link scanners from invalidating it. Set the production Site URL to the canonical HTTPS app URL before deploying.
 
 ### 2. FastAPI Backend
 
@@ -130,9 +126,6 @@ See `.env.example` for the full list with inline documentation.
 | `VALEDORSINHO_API_URL` | Not used | Required |
 | `NEXT_PUBLIC_VALEDORSINHO_API_URL` | Not used | Required |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Production URL |
-| `ADYEN_DEFAULT_API_KEY` | Not used | Optional fallback |
-| `ADYEN_DEFAULT_CLIENT_KEY` | Not used | Optional fallback |
-| `ADYEN_DEFAULT_MERCHANT_ACCOUNT` | Not used | Optional fallback |
 
 ---
 

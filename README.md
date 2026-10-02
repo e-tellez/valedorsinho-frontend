@@ -36,7 +36,7 @@ API contracts for each service live in [`docs/api-contracts/`](docs/api-contract
 | Icons | Lucide React |
 | Charts | Recharts |
 | Auth | Supabase (OTP / Magic Link) |
-| Deployment | Vercel |
+| Deployment | Railway |
 
 ---
 

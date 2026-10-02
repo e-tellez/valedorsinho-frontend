@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/adyen/api";
 
 export default function SystemStatus() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
@@ -10,13 +11,9 @@ export default function SystemStatus() {
 
     const checkBackend = async () => {
       try {
-        const response = await fetch("/api/config/client", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        
+        await apiFetch("/api/config/client");
         if (mounted) {
-          setIsOnline(response.ok);
+          setIsOnline(true);
         }
       } catch {
         if (mounted) {
