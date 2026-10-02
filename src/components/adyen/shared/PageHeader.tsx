@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import LogoutButton from "@/components/adyen/shared/LogoutButton";
 
 interface PageHeaderProps {
   title: string;
@@ -105,8 +106,9 @@ export default function PageHeader({
         </div>
 
         {/* Right slot - balanced spacing */}
-        <div className="flex-none pt-2">
-          {right !== undefined ? right : <div className="w-[120px]" aria-hidden="true" />}
+        <div className="flex-none min-w-[120px] pt-2 flex items-center justify-end gap-2">
+          {right}
+          <LogoutButton />
         </div>
       </div>
       

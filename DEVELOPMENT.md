@@ -83,6 +83,16 @@ The FastAPI migration runner owns the `adyen_configs` table and restricts it to 
 
 4. In Authentication → URL Configuration, set **Site URL** to `http://localhost:3000` and add `http://localhost:3000/auth/callback` to **Redirect URLs**.
 
+5. In Authentication → Email Templates → Magic Link, replace the confirmation link with a link that opens the app without consuming the token:
+
+```html
+<h2>Sign in to Valedorsinho</h2>
+<p>Click below to continue:</p>
+<p><a href="{{ .SiteURL }}/auth/confirm#token_hash={{ .TokenHash }}">Sign in</a></p>
+```
+
+The confirmation page consumes the one-time token only after the user presses **Confirm sign in**, preventing automated email link scanners from invalidating it. Set the production Site URL to the canonical HTTPS app URL before deploying.
+
 ### 2. FastAPI Backend
 
 The backend is at a separate private repo. Check with the project owner for access or use mock mode above.
