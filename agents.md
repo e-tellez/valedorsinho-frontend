@@ -15,7 +15,7 @@ API contracts: `docs/api-contracts/{valedorsinho,money-flow,impuestos}.md`
 | Language | TypeScript 5 |
 | UI | Tailwind CSS v4, Lucide React |
 | Auth | Supabase OTP / magic link (no password flow) |
-| Deployment | Vercel (`vercel.json`) |
+| Deployment | Railway |
 | Registry | Local `.npmrc` → `registry.npmjs.org` (overrides Adyen corporate Nexus) |
 
 ## Repository Structure
@@ -23,14 +23,12 @@ API contracts: `docs/api-contracts/{valedorsinho,money-flow,impuestos}.md`
 ```
 src/
   app/
-    (authenticated)/        # Future dashboard (not yet built)
-    (public)/               # Portfolio / landing pages
     api/
-      auth/                 # login, logout, refresh
-      valedorsinho/
-        auth/               # GET/PUT /api/valedorsinho/auth/config
-        config/             # GET /api/config/client
-    valedorsinho/           # All Valedorsinho routes, including ucp-agentic-commerce
+      auth/                 # Local Supabase send-otp and verify handlers only
+    auth/callback/          # Supabase code exchange + session-expiry cookie
+    checkout/               # Checkout pages; /api/checkout/* is served by FastAPI
+    setup/                  # Reads/writes FastAPI GET/PUT /api/auth/config
+    ucp-agentic-commerce/   # Frontend-only UCP lifecycle demo
   components/
     adyen/
       checkout/             # AdyenCheckoutPage.tsx, StepIndicator.tsx
@@ -49,18 +47,18 @@ src/
     translations.ts         # managePaymentsTranslations
     types.ts                # TS types mirroring FastAPI Pydantic models
     utils.ts                # formatDate(iso)
-    verticals.ts            # Vertical interface
   lib/supabase/
     browser.ts              # getSupabaseBrowserClient()
     server.ts
     types.ts                # Supabase row types (WebhookItem, WebhookDetail, ...)
-  middleware.ts             # Supabase JWT guard for /valedorsinho/*; legacy JWT for others
+  middleware.ts             # Supabase JWT + 24-hour session guard; excludes public/auth/API routes
+next.config.mjs              # Fallback rewrite proxies unmatched /api/* routes to FastAPI
 ```
 
 
 ## Frontend-Only Demos
 
-- `src/app/valedorsinho/ucp-agentic-commerce/` — UCP Agentic Commerce lifecycle demo ported from a standalone Vite app into Next.js. It is frontend-only and does not change `docs/api-contracts/valedorsinho.md`.
+- `src/app/ucp-agentic-commerce/` — UCP Agentic Commerce lifecycle demo ported from a standalone Vite app into Next.js. It is frontend-only and does not change `docs/api-contracts/valedorsinho.md`.
 
 ## Skills (`.devin/skills/`)
 
