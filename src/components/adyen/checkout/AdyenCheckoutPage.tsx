@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
 import { useAdyen } from "@/hooks/adyen/useAdyen";
 import { apiGet, apiPost } from "@/lib/adyen/api";
+import type {
+  CreatePaymentBody,
+  CreateSessionBody,
+  PaymentDetailsBody,
+  PaymentMethodsResponse,
+  SessionsResponse,
+} from "@/lib/adyen/types";
 import StepIndicator from "@/components/adyen/checkout/StepIndicator";
 import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
 import PageHeader from "@/components/adyen/shared/PageHeader";
@@ -101,7 +108,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
           const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency });
           if (state.shopperReference) params.set("shopperReference", state.shopperReference);
 
-          const pmData = await apiGet<{ response: any; requestBody: any }>(`/api/checkout/payment-methods?${params.toString()}`);
+          const pmData = await apiGet<PaymentMethodsResponse>(`/api/checkout/payment-methods?${params.toString()}`);
           setPreviewLeft({ title: "/paymentMethods request body", html: syntaxHighlight(pmData.requestBody) });
           setPreviewRight({ title: "/paymentMethods response", html: syntaxHighlight(pmData.response) });
 
@@ -110,7 +117,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             onSubmit: async (sdkState: any, component: any) => {
               if (isDropin) component.setStatus("loading");
               try {
-                const result = await apiPost<any>("/api/checkout/payments", {
+                const body: CreatePaymentBody = {
                   ...sdkState.data,
                   amountValue: state.amountMinorUnits,
                   currency: state.currency,
@@ -119,7 +126,8 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
                   isGuest: state.isGuest,
                   returnUrl: `${window.location.origin}/checkout/redirect`,
                   origin: window.location.origin,
-                });
+                };
+                const result = await apiPost<Record<string, unknown>>("/api/checkout/payments", body);
                 handleServerResponse(result, component);
               } catch (err: any) {
                 console.error("onSubmit error:", err);
@@ -130,7 +138,8 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
               setWaiting(true);
               if (isDropin) component.setStatus("loading");
               try {
-                const result = await apiPost<any>("/api/checkout/payments/details", sdkState.data);
+                const body: PaymentDetailsBody = sdkState.data;
+                const result = await apiPost<Record<string, unknown>>("/api/checkout/payments/details", body);
                 handleServerResponse(result, component);
               } catch (err: any) {
                 console.error("onAdditionalDetails error:", err);
@@ -142,14 +151,15 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             },
           };
         } else {
-          const sessionData = await apiPost<{ response: any; requestBody: any }>("/api/checkout/sessions", {
+          const sessionBody: CreateSessionBody = {
             amountValue: state.amountMinorUnits,
             currency: state.currency,
             countryCode: state.countryCode,
             shopperReference: state.shopperReference || undefined,
             isGuest: state.isGuest,
             returnUrl: `${window.location.origin}/checkout/sessions/redirect`,
-          });
+          };
+          const sessionData = await apiPost<SessionsResponse>("/api/checkout/sessions", sessionBody);
           setPreviewLeft({ title: "/sessions request body", html: syntaxHighlight(sessionData.requestBody) });
           setPreviewRight({ title: "/sessions response", html: syntaxHighlight(sessionData.response) });
 
