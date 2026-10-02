@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
-import type { Vertical } from "@/lib/adyen/verticals";
+import type { Vertical } from "@/lib/adyen/types";
 
 export default function PayloadSuggestedPage() {
   const [verticals, setVerticals] = useState<Vertical[]>([]);

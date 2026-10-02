@@ -8,6 +8,7 @@ import PageHeader from "@/components/adyen/shared/PageHeader";
 import StatusBanner from "@/components/adyen/shared/StatusBanner";
 import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
 import { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
+import type { DisableStoredMethodBody } from "@/lib/adyen/types";
 import { managePaymentsTranslations } from "@/lib/adyen/translations";
 
 export default function ManagePaymentsPage() {
@@ -198,7 +199,7 @@ export default function ManagePaymentsPage() {
           showRemovePaymentMethodButton: true,
           openFirstPaymentMethod: true,
           onDisableStoredPaymentMethod: async (storedPaymentMethodId: string, resolve: () => void, reject: () => void) => {
-            const requestBody = { shopperReference, storedPaymentMethodId };
+            const requestBody: DisableStoredMethodBody = { shopperReference, storedPaymentMethodId };
             console.log("[disable] callback fired");
             console.log("[disable] storedPaymentMethodId from SDK:", storedPaymentMethodId);
             console.log("[disable] shopperReference (context):", shopperReference);
