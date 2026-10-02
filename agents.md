@@ -15,7 +15,7 @@ API contracts: `docs/api-contracts/{valedorsinho,money-flow,impuestos}.md`
 | Language | TypeScript 5 |
 | UI | Tailwind CSS v4, Lucide React |
 | Auth | Supabase OTP / magic link (no password flow) |
-| Deployment | Vercel (`vercel.json`) |
+| Deployment | Railway |
 | Registry | Local `.npmrc` → `registry.npmjs.org` (overrides Adyen corporate Nexus) |
 
 ## Repository Structure
