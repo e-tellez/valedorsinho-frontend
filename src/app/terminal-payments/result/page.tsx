@@ -3,8 +3,9 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { syntaxHighlight } from "@/lib/adyen/syntaxHighlight";
 import PageHeader from "@/components/adyen/shared/PageHeader";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 import type { TerminalPaymentResult } from "@/lib/adyen/types";
 
 function TerminalPaymentResultPageInner() {
@@ -13,7 +14,6 @@ function TerminalPaymentResultPageInner() {
   const merchantAccount = searchParams.get("merchantAccount") || "";
 
   const [data, setData] = useState<TerminalPaymentResult | null>(null);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("terminal_payment_result");
@@ -24,14 +24,6 @@ function TerminalPaymentResultPageInner() {
     } catch {}
     sessionStorage.removeItem("terminal_payment_result");
   }, []);
-
-  function handleCopy() {
-    if (!data?.responseJson) return;
-    navigator.clipboard.writeText(JSON.stringify(data.responseJson, null, 2)).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }
 
   if (!data) {
     return (
@@ -47,8 +39,32 @@ function TerminalPaymentResultPageInner() {
   const makePaymentHref = `/terminal-payments/make-payment?terminalId=${encodeURIComponent(terminalId)}&merchantAccount=${encodeURIComponent(merchantAccount)}`;
   const hasDecoded = data.decodedAdditionalResponse != null;
 
+  const apiCalls: ApiCallEntry[] = data.responseJson
+    ? [
+        {
+          method: "POST",
+          endpoint: "/sync (Terminal API)",
+          direction: "merchant→adyen",
+          statusCode: data.apiCall?.statusCode,
+          latencyMs: data.apiCall?.latencyMs,
+          timestamp: data.apiCall?.timestamp,
+          request: data.apiCall?.request,
+          response: data.responseJson,
+          ...(hasDecoded
+            ? {
+                extra: {
+                  label: "Decoded Additional Response",
+                  note: "Base64-decoded per nexo EPAS standard",
+                  data: data.decodedAdditionalResponse,
+                },
+              }
+            : {}),
+        },
+      ]
+    : [];
+
   return (
-    <div className={`w-full ${hasDecoded ? "max-w-[1400px]" : "max-w-[900px]"}`}>
+    <div className="w-full max-w-[900px]">
       <PageHeader
         title="Payment Result"
         subtitle="Terminal API response for your payment request."
@@ -87,32 +103,8 @@ function TerminalPaymentResultPageInner() {
         )}
       </div>
 
-      {/* Two-column: full response + decoded */}
-      <div className={`grid gap-5 ${hasDecoded ? "grid-cols-2" : "grid-cols-1"}`}>
-        {/* Full Response */}
-        {data.responseJson && (
-          <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-sm overflow-y-auto max-h-[600px]">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400 font-sans font-semibold uppercase tracking-wide">Full Response</span>
-              <button onClick={handleCopy} className="text-xs text-gray-400 hover:text-white border border-gray-700 rounded px-2 py-0.5 transition-colors">
-                {copied ? "Copied!" : "Copy JSON"}
-              </button>
-            </div>
-            <pre className="whitespace-pre-wrap break-all" dangerouslySetInnerHTML={{ __html: syntaxHighlight(data.responseJson) }} />
-          </div>
-        )}
-
-        {/* Decoded Additional Response */}
-        {hasDecoded && (
-          <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-sm overflow-y-auto max-h-[600px]">
-            <div className="mb-1">
-              <span className="text-xs text-gray-400 font-sans font-semibold uppercase tracking-wide">Decoded Additional Response</span>
-            </div>
-            <div className="text-[0.7rem] text-gray-500 font-sans mb-2">Base64-decoded per nexo EPAS standard</div>
-            <pre className="whitespace-pre-wrap break-all" dangerouslySetInnerHTML={{ __html: syntaxHighlight(data.decodedAdditionalResponse) }} />
-          </div>
-        )}
-      </div>
+      {/* API call inspector */}
+      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }
