@@ -9,6 +9,9 @@ export async function GET(request: NextRequest) {
   // being used as the redirect base when running behind a reverse proxy.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const code = searchParams.get("code");
+  const providerError = searchParams.get("error");
+  const providerErrorCode = searchParams.get("error_code");
+  const providerErrorDescription = searchParams.get("error_description");
 
   if (code) {
     const supabase = createSupabaseServerClient();
@@ -16,25 +19,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
 
-      const { data: { user } } = await supabase.auth.getUser();
-
-      // A user is new if they have no adyen_configs row yet.
-      // Timestamp heuristics are unreliable: users can take up to 1 hour to
-      // click their OTP link, so created_at vs last_sign_in_at proximity is
-      // not a safe signal.
-      const { data: existingConfig } = user
-        ? await supabase
-            .from("adyen_configs")
-            .select("id")
-            .eq("user_id", user.id)
-            .maybeSingle()
-        : { data: null };
-
-      const destination = !existingConfig
-        ? `${appUrl}/setup?welcome=true`
-        : `${appUrl}/`;
-
-      const response = NextResponse.redirect(destination);
+      const response = NextResponse.redirect(`${appUrl}/`);
       response.cookies.set("vld_session_expires_at", String(expiresAt), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -44,6 +29,20 @@ export async function GET(request: NextRequest) {
       });
       return response;
     }
+
+    console.warn("[auth/callback] Code exchange failed:", {
+      code: error.code,
+      status: error.status,
+      message: error.message,
+    });
+  } else if (providerError || providerErrorCode || providerErrorDescription) {
+    console.warn("[auth/callback] Supabase rejected link:", {
+      error: providerError,
+      code: providerErrorCode,
+      description: providerErrorDescription,
+    });
+  } else {
+    console.warn("[auth/callback] Missing auth code");
   }
 
   return NextResponse.redirect(`${appUrl}/login?error=auth_failed`);

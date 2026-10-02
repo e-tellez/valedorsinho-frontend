@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiPost } from "@/lib/adyen/api";
+import type { RedirectBody } from "@/lib/adyen/types";
 
 function CheckoutRedirectPageInner() {
   const searchParams = useSearchParams();
@@ -19,9 +20,8 @@ function CheckoutRedirectPageInner() {
       return;
     }
 
-    apiPost<Record<string, unknown>>("/api/checkout/redirect", {
-      redirectResult: encodedResult,
-    })
+    const body: RedirectBody = { redirectResult: encodedResult };
+    apiPost<Record<string, unknown>>("/api/checkout/redirect", body)
       .then((result) => {
         const status = ["Authorised", "Pending", "Received"].includes(result.resultCode as string)
           ? "success"
