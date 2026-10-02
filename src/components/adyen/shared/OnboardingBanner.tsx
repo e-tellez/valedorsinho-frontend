@@ -13,10 +13,10 @@ export default function OnboardingBanner() {
   useEffect(() => {
     if (sessionStorage.getItem("onboarding_banner_dismissed") === "true") return;
 
-    apiFetch<AdyenSetupConfig>("/api/config/setup")
+    apiFetch<AdyenSetupConfig>("/api/auth/config")
       .then((config) => {
-        const hasCredentials = config.apiKey && config.clientKey && config.merchantAccount;
-        if (!hasCredentials) setShow(true);
+        const hasCredentials = config.apiKeyConfigured && config.clientKey && config.merchantAccount;
+        if (config.canConfigure && !hasCredentials) setShow(true);
       })
       .catch(() => {});
   }, []);

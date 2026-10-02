@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { apiFetch, apiPut } from "@/lib/adyen/api";
@@ -11,25 +11,42 @@ import type { AdyenSetupConfig } from "@/lib/adyen/types";
 export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }) {
   const router = useRouter();
   const [apiKey, setApiKey] = useState("");
+  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [clientKey, setClientKey] = useState("");
   const [merchantAccount, setMerchantAccount] = useState("");
   const [locked, setLocked] = useState(false);
+  const [canConfigure, setCanConfigure] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
-  useEffect(() => {
-    apiFetch<AdyenSetupConfig>("/api/config/setup")
-      .then((config) => {
-        setApiKey(config.apiKey);
-        setClientKey(config.clientKey);
-        setMerchantAccount(config.merchantAccount);
-        setLocked(config.locked);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadConfig = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
+    setStatus(null);
+    try {
+      const config = await apiFetch<AdyenSetupConfig>("/api/auth/config");
+      setApiKeyConfigured(config.apiKeyConfigured);
+      setClientKey(config.clientKey);
+      setMerchantAccount(config.merchantAccount);
+      setLocked(config.locked);
+      setCanConfigure(config.canConfigure);
+    } catch (err) {
+      setLoadError(true);
+      setStatus({
+        type: "error",
+        msg: err instanceof Error ? err.message : "Failed to load configuration.",
+      });
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +54,13 @@ export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }
     setStatus(null);
 
     try {
-      await apiPut("/api/config/setup", { apiKey, clientKey, merchantAccount });
+      const config = await apiPut<AdyenSetupConfig>("/api/auth/config", {
+        apiKey: apiKey || undefined,
+        clientKey,
+        merchantAccount,
+      });
+      setApiKey("");
+      setApiKeyConfigured(config.apiKeyConfigured);
       setStatus({ type: "success", msg: "Configuration saved successfully." });
       if (isWelcome) {
         setTimeout(() => router.push("/"), 1200);
@@ -61,9 +84,9 @@ export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }
             type={showApiKey ? "text" : "password"}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder="AQE..."
+            placeholder={apiKeyConfigured ? "Configured — leave blank to keep" : "AQE..."}
             autoComplete="off"
-            disabled={loading || locked}
+            disabled={loading || locked || !canConfigure}
             className="field-input pr-10 disabled:bg-gray-50 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
           />
           <button
@@ -86,7 +109,7 @@ export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }
           onChange={(e) => setClientKey(e.target.value)}
           placeholder="test_..."
           autoComplete="off"
-          disabled={loading || locked}
+          disabled={loading || locked || !canConfigure}
           className="field-input disabled:bg-gray-50 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
         />
       </FieldRow>
@@ -99,7 +122,7 @@ export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }
           onChange={(e) => setMerchantAccount(e.target.value)}
           placeholder="YourMerchantAccountECOM"
           autoComplete="off"
-          disabled={loading || locked}
+          disabled={loading || locked || !canConfigure}
           className="field-input disabled:bg-gray-50 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
         />
       </FieldRow>
@@ -107,9 +130,13 @@ export default function SetupForm({ isWelcome = false }: { isWelcome?: boolean }
       {/* Status feedback */}
       {status && <StatusBanner msg={status.msg} type={status.type} />}
 
-      {locked ? (
+      {loadError ? (
+        <button type="button" onClick={loadConfig} className="btn-primary w-full h-11! mt-2">
+          Retry
+        </button>
+      ) : locked || !canConfigure ? (
         <p className="text-sm text-center text-gray-400 dark:text-slate-500 py-1">
-          Configuration is managed by an admin.
+          {locked ? "Configuration is managed by an admin." : "Your role cannot change this configuration."}
         </p>
       ) : (
         <button

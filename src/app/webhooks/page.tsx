@@ -260,7 +260,7 @@ export default function WebhooksPage() {
               <code className="bg-[#f5f5f5] dark:bg-slate-700 px-1 rounded text-[0.78rem] dark:text-slate-200">
                 NEXT_PUBLIC_VALEDORSINHO_API_URL
               </code>{" "}
-              to your Render service URL to see your full webhook URL here.
+              to your FastAPI service URL to see your full webhook URL here.
             </p>
           ) : (
             <>

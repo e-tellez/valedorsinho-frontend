@@ -13,10 +13,14 @@ export interface ClientConfig {
 }
 
 export interface AdyenSetupConfig {
-  apiKey: string;
+  role: "admin" | "im" | "user";
   clientKey: string;
   merchantAccount: string;
+  environment: "test" | "live";
+  isCustom: boolean;
   locked: boolean;
+  apiKeyConfigured: boolean;
+  canConfigure: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+function isSupabaseSessionCookie(name: string) {
+  return name.startsWith("sb-") && !name.includes("code-verifier");
+}
+
+function redirectToLogin(request: NextRequest, reason?: "session_expired") {
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = reason ? `?reason=${reason}` : "";
+
+  const response = NextResponse.redirect(url);
+  response.cookies.delete("vld_session_expires_at");
+  request.cookies.getAll().forEach(({ name }) => {
+    if (isSupabaseSessionCookie(name)) response.cookies.delete(name);
+  });
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -8,6 +25,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname === "/login" ||
     pathname === "/auth/callback" ||
+    pathname === "/auth/confirm" ||
     pathname.startsWith("/api/") ||
     // Apple Pay domain verification file must be publicly accessible.
     // Apple contacts this path during merchant validation; it cannot be behind auth.
@@ -21,15 +39,14 @@ export async function middleware(request: NextRequest) {
   const now = Math.floor(Date.now() / 1000);
 
   if (!sessionExpiry) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const hadSupabaseSession = request.cookies.getAll().some(({ name }) =>
+      isSupabaseSessionCookie(name)
+    );
+    return redirectToLogin(request, hadSupabaseSession ? "session_expired" : undefined);
   }
 
   if (now >= Number(sessionExpiry)) {
-    const response = NextResponse.redirect(
-      new URL("/login?reason=session_expired", request.url)
-    );
-    response.cookies.delete("vld_session_expires_at");
-    return response;
+    return redirectToLogin(request, "session_expired");
   }
 
   // Supabase JWT validation
@@ -59,7 +76,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return redirectToLogin(request);
   }
 
   return supabaseResponse;
