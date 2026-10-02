@@ -40,10 +40,10 @@ src/app/valedorsinho/
 
 Uses **Supabase OTP (Magic Link)** — no password flow.
 
-1. User enters email at `/valedorsinho/login`
+1. User enters email at `/login`
 2. Supabase sends a magic link
-3. Callback at `/valedorsinho/auth` exchanges the token for a session (httpOnly cookie)
-4. `middleware.ts` validates the Supabase JWT for all routes under `valedorsinho/`
+3. Callback at `/auth/callback` exchanges the token for a session (httpOnly cookie)
+4. `middleware.ts` validates the Supabase session for protected page routes
 
 **Roles:** `admin` · `im` · `user` — affect config write access and webhook retention (admin: 5 days; im/user: 3 days).
 
