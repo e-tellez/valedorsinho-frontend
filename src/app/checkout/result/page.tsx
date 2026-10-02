@@ -4,8 +4,9 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
-import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
 import PageHeader from "@/components/adyen/shared/PageHeader";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 
 function ResultPageInner() {
   const searchParams = useSearchParams();
@@ -25,6 +26,18 @@ function ResultPageInner() {
   }, []);
 
   const isSuccess = status === "success";
+
+  const apiCalls: ApiCallEntry[] = rawResponse
+    ? [
+        {
+          method: "POST",
+          endpoint: integrationType.toLowerCase().includes("session") ? "/v71/sessions" : "/v71/payments",
+          direction: "adyen→merchant",
+          statusCode: 200,
+          response: rawResponse,
+        },
+      ]
+    : [];
 
   return (
     <div className="w-full max-w-[720px]">
@@ -59,13 +72,7 @@ function ResultPageInner() {
         </div>
       </div>
 
-      {rawResponse && (
-        <div className="mb-6">
-          <PreviewCard title="Raw Response">
-            <pre dangerouslySetInnerHTML={{ __html: syntaxHighlight(rawResponse) }} />
-          </PreviewCard>
-        </div>
-      )}
+      <ApiCallPanel side="right" calls={apiCalls} />
 
       {/* Actions */}
       <div className="flex gap-3">

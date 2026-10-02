@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import PageHeader from "@/components/adyen/shared/PageHeader";
-import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 import type { Vertical } from "@/lib/adyen/types";
 
 export default function PayloadSuggestedPage() {
@@ -15,6 +16,7 @@ export default function PayloadSuggestedPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [apiCalls, setApiCalls] = useState<ApiCallEntry[]>([]);
 
   useEffect(() => {
     apiGet<Vertical[]>("/api/tools/verticals")
@@ -40,19 +42,44 @@ export default function PayloadSuggestedPage() {
     setLoading(true);
     setError(null);
 
-    apiPost<{ payload: Record<string, unknown> }>("/api/tools/payload-suggested", {
-      verticals: Array.from(selected),
-    })
+    const t0 = Date.now();
+    const requestBody = { verticals: Array.from(selected) };
+
+    apiPost<{ payload: Record<string, unknown> }>("/api/tools/payload-suggested", requestBody)
       .then((res) => {
         if (!cancelled) {
           setPayload(res.payload);
           setLoading(false);
+          setApiCalls([
+            {
+              method: "POST",
+              endpoint: "/api/tools/payload-suggested",
+              direction: "merchant→adyen",
+              statusCode: 200,
+              latencyMs: Date.now() - t0,
+              timestamp: new Date().toISOString(),
+              request: requestBody,
+              response: res,
+            },
+          ]);
         }
       })
       .catch((err: Error) => {
         if (!cancelled) {
           setError(err.message);
           setLoading(false);
+          setApiCalls([
+            {
+              method: "POST",
+              endpoint: "/api/tools/payload-suggested",
+              direction: "merchant→adyen",
+              statusCode: 500,
+              latencyMs: Date.now() - t0,
+              timestamp: new Date().toISOString(),
+              request: requestBody,
+              response: { error: err.message },
+            },
+          ]);
         }
       });
 
@@ -161,19 +188,21 @@ export default function PayloadSuggestedPage() {
             <div className="mb-4 text-sm text-green-600 font-medium">Copied to clipboard!</div>
           )}
 
-          <PreviewCard title="Payload Preview">
+          <div className="rounded-xl border border-dashed border-gray-300 dark:border-slate-700 px-4 py-6 text-sm text-gray-500 dark:text-slate-400">
             {loading ? (
-              <span className="text-gray-400 dark:text-slate-400">Generating payload…</span>
+              "Generating payload…"
             ) : error ? (
-              <span className="text-red-400">{error}</span>
+              <span className="text-red-500 dark:text-red-400">{error}</span>
             ) : payload ? (
-              <pre dangerouslySetInnerHTML={{ __html: syntaxHighlight(payload) }} />
+              <>The suggested <code className="font-mono">/payments</code> payload is shown in the API&nbsp;Calls panel. →</>
             ) : (
-              <span className="text-gray-500 dark:text-slate-400">Select at least one vertical.</span>
+              "Select at least one vertical."
             )}
-          </PreviewCard>
+          </div>
         </div>
       </div>
+
+      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }

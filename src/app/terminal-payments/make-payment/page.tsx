@@ -125,10 +125,21 @@ function MakePaymentPageInner() {
 
   async function handleSend() {
     setSending(true);
+    const t0 = Date.now();
     try {
       const rawResponse = await apiPost<Record<string, unknown>>("/api/terminal/make-payment", payload);
+      const latencyMs = Date.now() - t0;
       const decoded = await apiPost<Record<string, unknown>>("/api/terminal/decode-response", rawResponse);
-      const result = { ...decoded, responseJson: rawResponse };
+      const result = {
+        ...decoded,
+        responseJson: rawResponse,
+        apiCall: {
+          request: payload,
+          statusCode: 200,
+          latencyMs,
+          timestamp: new Date().toISOString(),
+        },
+      };
       sessionStorage.setItem("terminal_payment_result", JSON.stringify(result));
       const params = new URLSearchParams({ terminalId, merchantAccount });
       router.push(`/terminal-payments/result?${params.toString()}`);

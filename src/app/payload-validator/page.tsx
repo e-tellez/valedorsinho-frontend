@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { apiPost } from "@/lib/adyen/api";
 import PageHeader from "@/components/adyen/shared/PageHeader";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 
 interface ValidationError {
   field: string;
@@ -23,6 +25,7 @@ export default function PayloadValidatorPage() {
   const [validating, setValidating] = useState(false);
   const [banner, setBanner] = useState<{ type: "success" | "error" | "loading"; message: string } | null>(null);
   const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [apiCalls, setApiCalls] = useState<ApiCallEntry[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +67,7 @@ export default function PayloadValidatorPage() {
     setBanner({ type: "loading", message: "Validating against OpenAPI spec\u2026" });
     setValidating(true);
 
+    const t0 = Date.now();
     try {
       const res = await apiPost<{ valid: boolean; errors?: ValidationError[] }>(
         "/api/tools/validate-payload",
@@ -78,9 +82,34 @@ export default function PayloadValidatorPage() {
         setBanner({ type: "error", message: `${errs.length} validation error(s) found.` });
         setErrors(errs);
       }
+
+      setApiCalls([
+        {
+          method: "POST",
+          endpoint: "/api/tools/validate-payload",
+          direction: "merchant→adyen",
+          statusCode: 200,
+          latencyMs: Date.now() - t0,
+          timestamp: new Date().toISOString(),
+          request: { payload },
+          response: res,
+        },
+      ]);
     } catch (err: any) {
       setBanner({ type: "error", message: "Network error: " + err.message });
       setErrors([]);
+      setApiCalls([
+        {
+          method: "POST",
+          endpoint: "/api/tools/validate-payload",
+          direction: "merchant→adyen",
+          statusCode: 500,
+          latencyMs: Date.now() - t0,
+          timestamp: new Date().toISOString(),
+          request: { payload },
+          response: { error: err.message },
+        },
+      ]);
     } finally {
       setValidating(false);
     }
@@ -201,6 +230,8 @@ export default function PayloadValidatorPage() {
           )}
         </div>
       </div>
+
+      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }
