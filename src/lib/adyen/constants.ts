@@ -14,6 +14,25 @@ export const COUNTRY_CURRENCY_MAP: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Country → Shopper locale mapping
+// ---------------------------------------------------------------------------
+// BCP 47 locale used for the Adyen SDK UI language and the `shopperLocale`
+// sent to Adyen (payment method display names). Falls back to the default
+// below for unmapped countries.
+
+export const DEFAULT_SHOPPER_LOCALE = "en-US";
+
+export const COUNTRY_LOCALE_MAP: Record<string, string> = {
+  MX: "es-ES",
+  US: "en-US",
+  BR: "pt-BR",
+};
+
+export function localeForCountry(countryCode: string): string {
+  return COUNTRY_LOCALE_MAP[countryCode] ?? DEFAULT_SHOPPER_LOCALE;
+}
+
+// ---------------------------------------------------------------------------
 // Integration registry (replaces @register_integration decorator)
 // ---------------------------------------------------------------------------
 

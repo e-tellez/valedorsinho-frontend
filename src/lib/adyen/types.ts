@@ -74,6 +74,7 @@ export interface CreateSessionBody {
   shopperReference?: string;
   isGuest: boolean;
   shopperEmail?: string;
+  shopperLocale?: string;
   returnUrl: string;
 }
 
