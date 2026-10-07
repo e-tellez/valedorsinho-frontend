@@ -7,8 +7,7 @@ import { formatDate } from "@/lib/adyen/utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { WebhookItem, WebhookDetail, WebhookListResponse } from "@/lib/supabase/types";
 import PageHeader from "@/components/adyen/shared/PageHeader";
-import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
-import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
+import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -231,19 +230,6 @@ export default function WebhooksPage() {
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
-  const expandedDetail = expandedId ? detailMap[expandedId] : null;
-  const apiCalls: ApiCallEntry[] = expandedDetail?.payload
-    ? [
-        {
-          method: "POST",
-          endpoint: `/webhooks · ${expandedDetail.event_code}`,
-          direction: "adyen→merchant",
-          timestamp: expandedDetail.received_at,
-          response: expandedDetail.payload,
-        },
-      ]
-    : [];
-
   return (
     <div className="w-full max-w-[960px]">
       {/* Header */}
@@ -443,11 +429,14 @@ export default function WebhooksPage() {
                           </span>
                         </div>
 
-                        {/* Raw payload — shown in the API Calls side panel */}
+                        {/* Raw payload */}
                         {detail.payload ? (
-                          <p className="text-[0.82rem] text-[#888] dark:text-slate-500">
-                            Raw payload shown in the API&nbsp;Calls panel. →
-                          </p>
+                          <div className="relative">
+                            <PreviewCard title="Raw Payload" initialHtml={syntaxHighlight(detail.payload)} />
+                            <div className="absolute top-2 right-2">
+                              <CopyButton value={JSON.stringify(detail.payload, null, 2)} />
+                            </div>
+                          </div>
                         ) : (
                           <p className="text-[0.82rem] text-[#888] dark:text-slate-500 italic">No payload stored for this notification.</p>
                         )}
@@ -473,8 +462,6 @@ export default function WebhooksPage() {
           </button>
         </div>
       )}
-
-      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }
