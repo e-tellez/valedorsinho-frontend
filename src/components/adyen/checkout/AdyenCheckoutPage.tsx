@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
+import { localeForCountry } from "@/lib/adyen/constants";
 import { useAdyen } from "@/hooks/adyen/useAdyen";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import type {
@@ -49,6 +50,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
   const displayAmount = (state.amountMinorUnits / 100).toFixed(2);
   const isDropin = product === "dropin";
   const isAdvanced = flow === "Advanced";
+  const shopperLocale = localeForCountry(state.countryCode);
 
   // -----------------------------------------------------------------------
   // handleFinalResult — redirect to result page
@@ -109,7 +111,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         let flowConfig: Record<string, unknown>;
 
         if (isAdvanced) {
-          const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency });
+          const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency, shopperLocale });
           if (state.shopperReference) params.set("shopperReference", state.shopperReference);
 
           const pmT0 = Date.now();
@@ -212,6 +214,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             countryCode: state.countryCode,
             shopperReference: state.shopperReference || undefined,
             isGuest: state.isGuest,
+            shopperLocale,
             returnUrl: `${window.location.origin}/checkout/sessions/redirect`,
           };
           const sessT0 = Date.now();
@@ -236,7 +239,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         const checkout = await AdyenCheckout({
           clientKey: config.clientKey,
           environment: config.environment,
-          locale: "en-US",
+          locale: shopperLocale,
           analytics: { enabled: false },
           threeDS2Configuration: { challengeWindowSize: "03" },
           ...(isDropin && {
