@@ -74,6 +74,7 @@ export interface CreateSessionBody {
   shopperReference?: string;
   isGuest: boolean;
   shopperEmail?: string;
+  shopperLocale?: string;
   returnUrl: string;
 }
 
@@ -142,6 +143,13 @@ export interface TerminalPaymentResult {
   paymentSummary?: Array<{ label: string; value: string }>;
   /** Full raw terminal API response, stored alongside the decoded result for display. */
   responseJson?: object;
+  /** API-call metadata captured at send time, for the rich ApiCallCard inspector. */
+  apiCall?: {
+    request: unknown;
+    statusCode: number;
+    latencyMs: number;
+    timestamp: string;
+  };
 }
 
 // ---------------------------------------------------------------------------
