@@ -5,34 +5,46 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { apiPost } from "@/lib/adyen/api";
 import type { RedirectBody } from "@/lib/adyen/types";
 
-function SessionsRedirectPageInner() {
+function CheckoutRedirectPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const redirectResult = searchParams.get("redirectResult") || searchParams.get("payload");
-    if (!redirectResult) {
-      setError("No redirect result found in URL parameters.");
+    const redirectResult = searchParams.get("redirectResult");
+    const payload = searchParams.get("payload");
+    const encodedResult = redirectResult || payload;
+
+    if (!encodedResult) {
+      setError("No redirect result found.");
       return;
     }
 
-    const body: RedirectBody = { redirectResult };
+    const body: RedirectBody = { redirectResult: encodedResult };
     apiPost<Record<string, unknown>>("/api/checkout/redirect", body)
       .then((result) => {
         const status = ["Authorised", "Pending", "Received"].includes(result.resultCode as string)
           ? "success"
           : "failure";
-        try { sessionStorage.setItem("adyen_result", JSON.stringify(result)); } catch {}
+        try {
+          sessionStorage.setItem("adyen_result", JSON.stringify(result));
+        } catch {}
+        // Read integrationType from persisted checkout state — this survives the
+        // browser redirect because CheckoutContext writes to sessionStorage.
+        let integrationType = "";
+        try {
+          const raw = sessionStorage.getItem("valedorsinho_checkout");
+          if (raw) integrationType = JSON.parse(raw).integrationType || "";
+        } catch {}
         const params = new URLSearchParams({
           status,
           resultCode: (result.resultCode as string) || "",
           pspReference: (result.pspReference as string) || "",
-          integrationType: "Sessions",
+          integrationType,
         });
-        router.push(`/checkout/result?${params.toString()}`);
+        router.push(`/legacy/checkout/result?${params.toString()}`);
       })
-      .catch((err: Error) => setError(err.message));
+      .catch((err) => setError(err.message));
   }, [searchParams, router]);
 
   if (error) {
@@ -54,10 +66,10 @@ function SessionsRedirectPageInner() {
   );
 }
 
-export default function SessionsRedirectPage() {
+export default function CheckoutRedirectPage() {
   return (
     <Suspense fallback={null}>
-      <SessionsRedirectPageInner />
+      <CheckoutRedirectPageInner />
     </Suspense>
   );
 }

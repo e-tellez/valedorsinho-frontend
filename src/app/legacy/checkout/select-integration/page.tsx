@@ -17,7 +17,7 @@ export default function SelectIntegrationPage() {
       <PageHeader
         title="Integration Type"
         subtitle="Choose your payment integration method"
-        backHref="/checkout/order"
+        backHref="/legacy/checkout/order"
         backLabel="Back"
       />
 
@@ -35,7 +35,7 @@ export default function SelectIntegrationPage() {
         </div>
         {state.shopperReference && (
           <Link
-            href="/checkout/manage-payments"
+            href="/legacy/checkout/manage-payments"
             className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg no-underline whitespace-nowrap transition-colors hover:border-primary hover:bg-blue-50 dark:hover:bg-slate-700"
           >
             <CreditCard className="w-4 h-4 shrink-0" />

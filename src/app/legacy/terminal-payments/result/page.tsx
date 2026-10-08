@@ -29,14 +29,14 @@ function TerminalPaymentResultPageInner() {
     return (
       <div className="w-full max-w-[900px] text-center py-20">
         <p className="text-gray-500">No payment result data found.</p>
-        <Link href="/terminal-payments" className="text-primary underline text-sm mt-2 inline-block">
+        <Link href="/legacy/terminal-payments" className="text-primary underline text-sm mt-2 inline-block">
           Back to Terminal Payments
         </Link>
       </div>
     );
   }
 
-  const makePaymentHref = `/terminal-payments/make-payment?terminalId=${encodeURIComponent(terminalId)}&merchantAccount=${encodeURIComponent(merchantAccount)}`;
+  const makePaymentHref = `/legacy/terminal-payments/make-payment?terminalId=${encodeURIComponent(terminalId)}&merchantAccount=${encodeURIComponent(merchantAccount)}`;
   const hasDecoded = data.decodedAdditionalResponse != null;
 
   const apiCalls: ApiCallEntry[] = data.responseJson
@@ -73,7 +73,7 @@ function TerminalPaymentResultPageInner() {
             <Link href={makePaymentHref} className="btn-primary inline-flex! items-center! justify-center! w-auto! px-3 py-1.5! text-xs">
               &larr; Make Another Payment
             </Link>
-            <Link href="/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-3 py-1.5! text-xs">
+            <Link href="/legacy/terminal-payments" className="btn-secondary inline-flex! items-center! justify-center! w-auto! px-3 py-1.5! text-xs">
               &larr; Back to Terminal Payments
             </Link>
           </div>

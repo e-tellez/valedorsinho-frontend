@@ -118,7 +118,7 @@ export default function ManagePaymentsPage() {
               shopperReference,
               isGuest: false,
               storePaymentMethod: true,
-              returnUrl: `${window.location.origin}/checkout/manage-payments`,
+              returnUrl: `${window.location.origin}/legacy/checkout/manage-payments`,
               origin: window.location.origin,
             };
             const t0 = Date.now();
@@ -261,7 +261,7 @@ export default function ManagePaymentsPage() {
         <PageHeader
           title="Manage Payment Methods"
           subtitle="No shopper reference found"
-          backHref="/checkout/select-integration"
+          backHref="/legacy/checkout/select-integration"
           backLabel="Back"
         />
         <div className="text-center py-20">
@@ -276,7 +276,7 @@ export default function ManagePaymentsPage() {
       <PageHeader
         title="Manage Payment Methods"
         subtitle={`Shopper: ${shopperReference}`}
-        backHref="/checkout/select-integration"
+        backHref="/legacy/checkout/select-integration"
         backLabel="Back"
       />
 

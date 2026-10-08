@@ -229,7 +229,7 @@ export default function ApplePayMsiPage() {
         countryCode: "MX",
         channel: "Web",
         installments: { value: installments },
-        returnUrl: `https://${domainName}/apple-pay-msi`,
+        returnUrl: `https://${domainName}/legacy/apple-pay-msi`,
       },
       response: {
         resultCode: "Authorised",
@@ -470,7 +470,7 @@ export default function ApplePayMsiPage() {
               { step: 4, label: "POST /payments", desc: "Submit token with installments.value for MSI (onpaymentauthorized)" },
             ].map(({ step, label, desc }) => (
               <li key={step} className="flex items-start gap-3 text-sm">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#00d4ff]/20 dark:bg-[#00d4ff]/10 text-[#00d4ff] text-[0.7rem] font-bold flex items-center justify-center border border-[#00d4ff]/30">
+                <span className="shrink-0 w-5 h-5 rounded-full bg-primary/20 dark:bg-primary/10 text-primary text-[0.7rem] font-bold flex items-center justify-center border border-primary/30">
                   {step}
                 </span>
                 <span>
@@ -535,7 +535,7 @@ export default function ApplePayMsiPage() {
                 step="0.01"
                 value={amountMXN}
                 onChange={(e) => setAmountMXN(e.target.value)}
-                className="w-full pl-7 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#00d4ff]/40"
+                className="w-full pl-7 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
             <p className="text-[0.7rem] text-gray-400">
@@ -556,8 +556,8 @@ export default function ApplePayMsiPage() {
                   onClick={() => setInstallments(opt.value)}
                   className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all duration-150 ${
                     installments === opt.value
-                      ? "border-[#00d4ff] bg-[#00d4ff]/10 text-[#00d4ff]"
-                      : "border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:border-[#00d4ff]/50"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:border-primary/50"
                   }`}
                 >
                   {opt.label}
@@ -593,7 +593,7 @@ export default function ApplePayMsiPage() {
               <button
                 type="button"
                 onClick={handlePreviewPayloads}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-[#00d4ff]/40 hover:border-[#00d4ff] bg-[#00d4ff]/5 hover:bg-[#00d4ff]/10 text-[#00d4ff] font-semibold text-sm transition-all duration-150"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-semibold text-sm transition-all duration-150"
               >
                 <Eye className="w-4 h-4" />
                 Preview Payloads (steps 3 &amp; 4)
@@ -645,23 +645,23 @@ export default function ApplePayMsiPage() {
         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-3">Key PoC Decisions</h3>
         <ul className="flex flex-col gap-2 text-xs text-gray-600 dark:text-slate-400">
           <li className="flex items-start gap-2">
-            <span className="font-mono text-[#00d4ff] shrink-0">·</span>
+            <span className="font-mono text-primary shrink-0">·</span>
             <span><span className="font-semibold text-gray-700 dark:text-slate-300">Credit-only enforcement:</span> <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">merchantCapabilities: [&#34;supports3DS&#34;, &#34;supportsCredit&#34;]</code> — debit cards are excluded at the wallet level, not via BIN filtering (BINs are encrypted by Apple before tokenisation).</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="font-mono text-[#00d4ff] shrink-0">·</span>
+            <span className="font-mono text-primary shrink-0">·</span>
             <span><span className="font-semibold text-gray-700 dark:text-slate-300">No /sessions endpoint:</span> This is an Advanced / API-only integration. The Apple Pay token flows directly to <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">/payments</code>.</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="font-mono text-[#00d4ff] shrink-0">·</span>
+            <span className="font-mono text-primary shrink-0">·</span>
             <span><span className="font-semibold text-gray-700 dark:text-slate-300">MSI installments:</span> Adyen settles the full amount immediately; the issuing bank handles the installment split at 0% interest for the shopper.</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="font-mono text-[#00d4ff] shrink-0">·</span>
+            <span className="font-mono text-primary shrink-0">·</span>
             <span><span className="font-semibold text-gray-700 dark:text-slate-300">Token encoding:</span> <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">btoa(JSON.stringify(paymentData))</code> — the entire Apple Pay paymentData JSON is stringified and base64-encoded before sending to Adyen as <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">applePayToken</code>.</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="font-mono text-[#00d4ff] shrink-0">·</span>
+            <span className="font-mono text-primary shrink-0">·</span>
             <span><span className="font-semibold text-gray-700 dark:text-slate-300">Adyen certificate:</span> Merchant validation is proxied through your backend to Adyen&#39;s <code className="font-mono bg-gray-100 dark:bg-slate-700 px-1 rounded">/applePay/sessions</code>. No Apple certificate management required.</span>
           </li>
         </ul>

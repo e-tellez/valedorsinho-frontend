@@ -13,12 +13,12 @@ export default function ChooseFlowPage() {
 
   function handleGuest() {
     setFlow(true);
-    router.push("/checkout/order");
+    router.push("/legacy/checkout/order");
   }
 
   function handleAccount() {
     setFlow(false);
-    router.push("/checkout/order");
+    router.push("/legacy/checkout/order");
   }
 
   return (

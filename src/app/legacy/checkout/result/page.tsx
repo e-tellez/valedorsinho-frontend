@@ -44,7 +44,7 @@ function ResultPageInner() {
       <PageHeader
         title={isSuccess ? "Payment Successful" : "Payment Failed"}
         subtitle="Transaction result"
-        backHref="/checkout"
+        backHref="/legacy/checkout"
         backLabel="New Payment"
       />
       {/* Result banner */}
@@ -76,7 +76,7 @@ function ResultPageInner() {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Link href="/checkout" className="btn-primary inline-flex items-center gap-2 leading-10">
+        <Link href="/legacy/checkout" className="btn-primary inline-flex items-center gap-2 leading-10">
           ← New Payment
         </Link>
         <Link href="/" className="btn-secondary inline-flex items-center gap-2 leading-10">

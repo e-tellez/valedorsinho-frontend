@@ -44,7 +44,7 @@ export default function OrderPage() {
       setFlow(false, username.trim());
     }
     setOrder(amountMinorUnits, country);
-    router.push("/checkout/select-integration");
+    router.push("/legacy/checkout/select-integration");
   }
 
   return (
@@ -52,7 +52,7 @@ export default function OrderPage() {
       <PageHeader
         title="Your Order"
         subtitle={state.isGuest ? "Confirm your order details" : "Enter your details to continue"}
-        backHref="/checkout"
+        backHref="/legacy/checkout"
         backLabel="Back"
       />
 

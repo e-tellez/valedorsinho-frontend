@@ -8,19 +8,19 @@ import StatusBanner from "@/components/adyen/shared/StatusBanner";
 
 const FLOWS = [
   {
-    href: "/terminal-payments/make-payment",
+    href: "/legacy/terminal-payments/make-payment",
     title: "Make a Payment",
     desc: "Send a payment request to the terminal.",
     icon: <CreditCard className="w-full h-full" />,
   },
   {
-    href: "/terminal-payments/auth-capt",
+    href: "/legacy/terminal-payments/auth-capt",
     title: "Auth + Capture",
     desc: "Pre-authorize then capture in separate steps.",
     icon: <ShieldCheck className="w-full h-full" />,
   },
   {
-    href: "/terminal-payments/card-acquisition",
+    href: "/legacy/terminal-payments/card-acquisition",
     title: "Card Acquisition",
     desc: "Acquire card details without charging.",
     icon: <ScanLine className="w-full h-full" />,

@@ -21,7 +21,7 @@ function CardAcquisitionPageInner() {
       <PageHeader
         title="Card Acquisition"
         subtitle="Acquire card details without charging"
-        backHref="/terminal-payments"
+        backHref="/legacy/terminal-payments"
         backLabel="Terminal Payments"
       />
 
@@ -40,7 +40,7 @@ function CardAcquisitionPageInner() {
 
       <h2 className="text-base font-bold text-gray-700 dark:text-slate-200 mb-3">Related Flows</h2>
       <Link
-        href={`/terminal-payments/nfc${queryString}`}
+        href={`/legacy/terminal-payments/nfc${queryString}`}
         className="flex items-center gap-4 bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-100 dark:border-slate-700 no-underline text-inherit transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
       >
         <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-green-50 text-green-600">

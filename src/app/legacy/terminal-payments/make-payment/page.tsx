@@ -142,7 +142,7 @@ function MakePaymentPageInner() {
       };
       sessionStorage.setItem("terminal_payment_result", JSON.stringify(result));
       const params = new URLSearchParams({ terminalId, merchantAccount });
-      router.push(`/terminal-payments/result?${params.toString()}`);
+      router.push(`/legacy/terminal-payments/result?${params.toString()}`);
     } catch (err: any) {
       alert("Request failed: " + (err.message || "Unknown error"));
       setSending(false);
@@ -161,7 +161,7 @@ function MakePaymentPageInner() {
       <PageHeader
         title="Make a Payment"
         subtitle="Configure and send a payment request to a terminal."
-        backHref="/terminal-payments"
+        backHref="/legacy/terminal-payments"
         backLabel="Terminal Payments"
       />
 
