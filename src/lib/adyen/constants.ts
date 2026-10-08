@@ -14,6 +14,25 @@ export const COUNTRY_CURRENCY_MAP: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Country → Shopper locale mapping
+// ---------------------------------------------------------------------------
+// BCP 47 locale used for the Adyen SDK UI language and the `shopperLocale`
+// sent to Adyen (payment method display names). Falls back to the default
+// below for unmapped countries.
+
+export const DEFAULT_SHOPPER_LOCALE = "en-US";
+
+export const COUNTRY_LOCALE_MAP: Record<string, string> = {
+  MX: "es-ES",
+  US: "en-US",
+  BR: "pt-BR",
+};
+
+export function localeForCountry(countryCode: string): string {
+  return COUNTRY_LOCALE_MAP[countryCode] ?? DEFAULT_SHOPPER_LOCALE;
+}
+
+// ---------------------------------------------------------------------------
 // Integration registry (replaces @register_integration decorator)
 // ---------------------------------------------------------------------------
 
@@ -31,7 +50,7 @@ export const INTEGRATIONS: Integration[] = [
     name: "Drop-in",
     description:
       "Pre-built UI with all available payment methods in your MA.",
-    href: "/checkout/dropin",
+    href: "/legacy/checkout/dropin",
     category: "Advanced",
     order: 1,
   },
@@ -40,7 +59,7 @@ export const INTEGRATIONS: Integration[] = [
     description:
       "Card fields only \u2014 you control the surrounding UI and pay button.",
     note: "(Only Card Component implemented for now)",
-    href: "/checkout/components",
+    href: "/legacy/checkout/components",
     category: "Advanced",
     order: 2,
   },
@@ -48,7 +67,7 @@ export const INTEGRATIONS: Integration[] = [
     name: "Drop-in",
     description:
       "Pre-built UI powered by /sessions \u2014 Adyen handles the full payment flow.",
-    href: "/checkout/sessions/dropin",
+    href: "/legacy/checkout/sessions/dropin",
     category: "Sessions",
     order: 3,
   },
@@ -57,7 +76,7 @@ export const INTEGRATIONS: Integration[] = [
     description:
       "Card fields only, powered by /sessions \u2014 you control the UI, Adyen handles the flow.",
     note: "(Only Card Component implemented for now)",
-    href: "/checkout/sessions/components",
+    href: "/legacy/checkout/sessions/components",
     category: "Sessions",
     order: 4,
   },
