@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
+import { localeForCountry } from "@/lib/adyen/constants";
 import { useAdyen } from "@/hooks/adyen/useAdyen";
 import { apiGet, apiPost } from "@/lib/adyen/api";
 import type {
@@ -13,7 +14,8 @@ import type {
   SessionsResponse,
 } from "@/lib/adyen/types";
 import StepIndicator from "@/components/adyen/checkout/StepIndicator";
-import PreviewCard, { syntaxHighlight } from "@/components/adyen/shared/PreviewCard";
+import ApiCallPanel from "@/components/adyen/shared/ApiCallPanel";
+import type { ApiCallEntry } from "@/components/adyen/shared/ApiCallCard";
 import PageHeader from "@/components/adyen/shared/PageHeader";
 
 // ---------------------------------------------------------------------------
@@ -37,14 +39,18 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
   const containerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(false);
 
-  const [previewLeft, setPreviewLeft] = useState<{ title: string; html: string } | null>(null);
-  const [previewRight, setPreviewRight] = useState<{ title: string; html: string } | null>(null);
+  const [apiCalls, setApiCalls] = useState<ApiCallEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
+
+  function addApiCall(entry: ApiCallEntry) {
+    setApiCalls((prev) => [...prev, entry]);
+  }
 
   const displayAmount = (state.amountMinorUnits / 100).toFixed(2);
   const isDropin = product === "dropin";
   const isAdvanced = flow === "Advanced";
+  const shopperLocale = localeForCountry(state.countryCode);
 
   // -----------------------------------------------------------------------
   // handleFinalResult — redirect to result page
@@ -64,7 +70,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
       pspReference: (response?.pspReference as string) || "",
       integrationType: state.integrationType,
     });
-    router.push(`/checkout/result?${params.toString()}`);
+    router.push(`/legacy/checkout/result?${params.toString()}`);
   }
 
   // -----------------------------------------------------------------------
@@ -105,45 +111,96 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         let flowConfig: Record<string, unknown>;
 
         if (isAdvanced) {
-          const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency });
+          const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency, shopperLocale });
           if (state.shopperReference) params.set("shopperReference", state.shopperReference);
 
+          const pmT0 = Date.now();
           const pmData = await apiGet<PaymentMethodsResponse>(`/api/checkout/payment-methods?${params.toString()}`);
-          setPreviewLeft({ title: "/paymentMethods request body", html: syntaxHighlight(pmData.requestBody) });
-          setPreviewRight({ title: "/paymentMethods response", html: syntaxHighlight(pmData.response) });
+          addApiCall({
+            method: "POST",
+            endpoint: "/v71/paymentMethods",
+            direction: "merchant→adyen",
+            statusCode: 200,
+            latencyMs: Date.now() - pmT0,
+            timestamp: new Date().toISOString(),
+            request: pmData.requestBody,
+            response: pmData.response,
+          });
 
           flowConfig = {
             paymentMethodsResponse: pmData.response,
             onSubmit: async (sdkState: any, component: any) => {
               if (isDropin) component.setStatus("loading");
+              const t0 = Date.now();
+              const body: CreatePaymentBody = {
+                ...sdkState.data,
+                amountValue: state.amountMinorUnits,
+                currency: state.currency,
+                countryCode: state.countryCode,
+                shopperReference: state.shopperReference || undefined,
+                isGuest: state.isGuest,
+                returnUrl: `${window.location.origin}/legacy/checkout/redirect`,
+                origin: window.location.origin,
+              };
               try {
-                const body: CreatePaymentBody = {
-                  ...sdkState.data,
-                  amountValue: state.amountMinorUnits,
-                  currency: state.currency,
-                  countryCode: state.countryCode,
-                  shopperReference: state.shopperReference || undefined,
-                  isGuest: state.isGuest,
-                  returnUrl: `${window.location.origin}/checkout/redirect`,
-                  origin: window.location.origin,
-                };
                 const result = await apiPost<Record<string, unknown>>("/api/checkout/payments", body);
+                addApiCall({
+                  method: "POST",
+                  endpoint: "/v71/payments",
+                  direction: "merchant→adyen",
+                  statusCode: 200,
+                  latencyMs: Date.now() - t0,
+                  timestamp: new Date().toISOString(),
+                  request: body,
+                  response: result,
+                });
                 handleServerResponse(result, component);
               } catch (err: any) {
                 console.error("onSubmit error:", err);
+                addApiCall({
+                  method: "POST",
+                  endpoint: "/v71/payments",
+                  direction: "merchant→adyen",
+                  statusCode: 500,
+                  latencyMs: Date.now() - t0,
+                  timestamp: new Date().toISOString(),
+                  request: body,
+                  response: { error: err.message },
+                });
                 if (isDropin) component.setStatus("error", { message: err.message || "Payment failed." });
               }
             },
             onAdditionalDetails: async (sdkState: any, component: any) => {
               setWaiting(true);
               if (isDropin) component.setStatus("loading");
+              const t0 = Date.now();
+              const body: PaymentDetailsBody = sdkState.data;
               try {
-                const body: PaymentDetailsBody = sdkState.data;
                 const result = await apiPost<Record<string, unknown>>("/api/checkout/payments/details", body);
+                addApiCall({
+                  method: "POST",
+                  endpoint: "/v71/payments/details",
+                  direction: "merchant→adyen",
+                  statusCode: 200,
+                  latencyMs: Date.now() - t0,
+                  timestamp: new Date().toISOString(),
+                  request: body,
+                  response: result,
+                });
                 handleServerResponse(result, component);
               } catch (err: any) {
                 console.error("onAdditionalDetails error:", err);
                 setWaiting(false);
+                addApiCall({
+                  method: "POST",
+                  endpoint: "/v71/payments/details",
+                  direction: "merchant→adyen",
+                  statusCode: 500,
+                  latencyMs: Date.now() - t0,
+                  timestamp: new Date().toISOString(),
+                  request: body,
+                  response: { error: err.message },
+                });
                 if (isDropin) {
                   component.setStatus("error", { message: "Authentication failed." });
                 }
@@ -157,11 +214,21 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             countryCode: state.countryCode,
             shopperReference: state.shopperReference || undefined,
             isGuest: state.isGuest,
-            returnUrl: `${window.location.origin}/checkout/sessions/redirect`,
+            shopperLocale,
+            returnUrl: `${window.location.origin}/legacy/checkout/sessions/redirect`,
           };
+          const sessT0 = Date.now();
           const sessionData = await apiPost<SessionsResponse>("/api/checkout/sessions", sessionBody);
-          setPreviewLeft({ title: "/sessions request body", html: syntaxHighlight(sessionData.requestBody) });
-          setPreviewRight({ title: "/sessions response", html: syntaxHighlight(sessionData.response) });
+          addApiCall({
+            method: "POST",
+            endpoint: "/v71/sessions",
+            direction: "merchant→adyen",
+            statusCode: 200,
+            latencyMs: Date.now() - sessT0,
+            timestamp: new Date().toISOString(),
+            request: sessionData.requestBody,
+            response: sessionData.response,
+          });
 
           flowConfig = {
             session: { id: sessionData.response.id, sessionData: sessionData.response.sessionData },
@@ -172,7 +239,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         const checkout = await AdyenCheckout({
           clientKey: config.clientKey,
           environment: config.environment,
-          locale: "en-US",
+          locale: shopperLocale,
           analytics: { enabled: false },
           threeDS2Configuration: { challengeWindowSize: "03" },
           ...(isDropin && {
@@ -223,18 +290,17 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
   // Render
   // -----------------------------------------------------------------------
   return (
-    <div className="w-full max-w-[1200px]">
+    <div className="w-full max-w-[720px]">
       <PageHeader
         title="Complete Your Order"
         subtitle={`${isDropin ? "Drop-in" : "Components"} • ${flow} Flow`}
-        backHref="/checkout/select-integration"
+        backHref="/legacy/checkout/select-integration"
         backLabel="Back"
       />
 
-      <div className="flex gap-6 items-start">
-        {/* Main checkout panel */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-8 w-full max-w-[720px] shrink-0">
-          <StepIndicator currentStep={4} />
+      {/* Main checkout panel */}
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-8">
+        <StepIndicator currentStep={4} />
 
         {/* Order summary */}
         <div className="bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-md px-4 py-3 mb-6 text-sm text-gray-600 dark:text-slate-300">
@@ -267,16 +333,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
         )}
       </div>
 
-      {/* API sidebar */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3 sticky top-10 max-h-[calc(100vh-80px)] overflow-y-auto">
-        {previewLeft && (
-          <PreviewCard title={previewLeft.title} contentId="preview-left" initialHtml={previewLeft.html} />
-        )}
-        {previewRight && (
-          <PreviewCard title={previewRight.title} contentId="preview-right" initialHtml={previewRight.html} />
-        )}
-      </div>
-      </div>
+      <ApiCallPanel side="right" calls={apiCalls} />
     </div>
   );
 }

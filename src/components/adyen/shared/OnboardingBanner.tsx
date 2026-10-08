@@ -44,7 +44,7 @@ export default function OnboardingBanner() {
           Add your API key, client key, and merchant account so every demo runs against your own Adyen test environment.
         </p>
         <Link
-          href="/setup?welcome=true"
+          href="/legacy/setup?welcome=true"
           className="inline-block mt-2 font-mono text-[0.75rem] font-bold uppercase tracking-widest text-primary hover:underline transition-colors"
         >
           Open Setup →
