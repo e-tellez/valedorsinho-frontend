@@ -70,7 +70,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
       pspReference: (response?.pspReference as string) || "",
       integrationType: state.integrationType,
     });
-    router.push(`/checkout/result?${params.toString()}`);
+    router.push(`/legacy/checkout/result?${params.toString()}`);
   }
 
   // -----------------------------------------------------------------------
@@ -139,7 +139,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
                 countryCode: state.countryCode,
                 shopperReference: state.shopperReference || undefined,
                 isGuest: state.isGuest,
-                returnUrl: `${window.location.origin}/checkout/redirect`,
+                returnUrl: `${window.location.origin}/legacy/checkout/redirect`,
                 origin: window.location.origin,
               };
               try {
@@ -215,7 +215,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
             shopperReference: state.shopperReference || undefined,
             isGuest: state.isGuest,
             shopperLocale,
-            returnUrl: `${window.location.origin}/checkout/sessions/redirect`,
+            returnUrl: `${window.location.origin}/legacy/checkout/sessions/redirect`,
           };
           const sessT0 = Date.now();
           const sessionData = await apiPost<SessionsResponse>("/api/checkout/sessions", sessionBody);
@@ -294,7 +294,7 @@ export default function AdyenCheckoutPage({ product, flow }: AdyenCheckoutPagePr
       <PageHeader
         title="Complete Your Order"
         subtitle={`${isDropin ? "Drop-in" : "Components"} • ${flow} Flow`}
-        backHref="/checkout/select-integration"
+        backHref="/legacy/checkout/select-integration"
         backLabel="Back"
       />
 
