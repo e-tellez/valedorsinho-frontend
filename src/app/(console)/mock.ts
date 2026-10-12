@@ -98,19 +98,14 @@ export interface FeatureRow {
   id: string;
   name: string;
   gloss: string;
+  icon: string; // lucide key, resolved on the dashboard
   state: FeatureState;
   status: LogStatus;
 }
 
 export const DASHBOARD_ROWS: FeatureRow[] = [
-  { id: "webhooks", name: "Webhook Logs", gloss: "Inbound Adyen notifications in real time.", state: "LIVE", status: "ok" },
-  { id: "payload-validator", name: "Payload Validator", gloss: "Validate /payments against the OpenAPI spec.", state: "LIVE", status: "ok" },
-  { id: "payload-suggested", name: "Payload Suggested", gloss: "Generate a recommended /payments payload by vertical.", state: "LIVE", status: "ok" },
-  { id: "checkout", name: "Checkout", gloss: "Drop-in, Sessions & Components payment flows.", state: "LIVE", status: "ok" },
-  { id: "apple-pay-msi", name: "Apple Pay + MSI", gloss: "Apple Pay with Meses Sin Intereses for Mexico.", state: "LIVE", status: "ok" },
-  { id: "terminal-payments", name: "Terminal Payments", gloss: "Send Nexo requests to in-person terminals.", state: "LIVE", status: "ok" },
-  { id: "terminal-fleet", name: "Terminal Fleet", gloss: "Board, inventory and reassign terminals.", state: "LIVE", status: "ok" },
-  { id: "nfc-formatter", name: "NFC Formatter", gloss: "Build a Mifare Classic 1K card-acquisition payload.", state: "LIVE", status: "ok" },
-  { id: "management-api", name: "Management API", gloss: "Explore and call the Adyen Management API.", state: "LIVE", status: "ok" },
-  { id: "account-structure", name: "Account Structure", gloss: "How merchants, stores and settlement nest.", state: "SOON", status: "info" },
+  { id: "checkout", name: "Checkout", gloss: "Drop-in, Sessions & Components payment flows.", icon: "CreditCard", state: "LIVE", status: "ok" },
+  { id: "terminal-payments", name: "Terminal Payments", gloss: "Send Nexo requests to in-person terminals.", icon: "Monitor", state: "LIVE", status: "ok" },
+  { id: "webhooks", name: "Webhook Logs", gloss: "Inbound Adyen notifications in real time.", icon: "MessageSquare", state: "LIVE", status: "ok" },
+  { id: "setup", name: "Set Up", gloss: "Configure your Adyen API credentials.", icon: "Settings", state: "LIVE", status: "ok" },
 ];
