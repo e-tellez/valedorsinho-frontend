@@ -2,9 +2,18 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight, CreditCard, Smartphone, FileText, CheckSquare,
+  Monitor, Package, Nfc, MessageSquare, Pencil, Network, Settings, LayoutGrid,
+  type LucideIcon,
+} from "lucide-react";
 import { DASHBOARD_ROWS, type FeatureRow } from "./mock";
 import { useInspector } from "./shell/inspector-context";
+
+const ICONS: Record<string, LucideIcon> = {
+  CreditCard, Smartphone, FileText, CheckSquare, Monitor,
+  Package, Nfc, MessageSquare, Pencil, Network, Settings, LayoutGrid,
+};
 
 function hrefFor(id: string): string {
   return `/${id}`;
@@ -37,21 +46,29 @@ export default function DashboardPage() {
           <h2>Services</h2>
           <span className="cb-board__rule" />
         </div>
-        <div className="cb-rows">
-          {DASHBOARD_ROWS.map((row, i) => (
-            <Link key={row.id} href={hrefFor(row.id)} className="cb-row" style={{ animationDelay: `${i * 45}ms` }}>
-              <span className="cb-row__track">{String(i + 1).padStart(2, "0")}</span>
-              <span>
-                <span className="cb-row__name">{row.name}</span>
-                <span className="cb-row__gloss">{row.gloss}</span>
-              </span>
-              <span className={`cb-flap ${flapClass(row.status)}`}>
-                <span className="cb-lamp" />
-                {row.state}
-              </span>
-              <ArrowRight className="cb-row__arrow" size={16} />
-            </Link>
-          ))}
+        <div className="cb-grid">
+          {DASHBOARD_ROWS.map((row, i) => {
+            const Icon = ICONS[row.icon] ?? LayoutGrid;
+            return (
+              <Link key={row.id} href={hrefFor(row.id)} className="cb-card" style={{ animationDelay: `${i * 40}ms` }}>
+                <div className="cb-card__top">
+                  <span className="cb-card__badge"><Icon className="cb-card__icon" /></span>
+                  <span className={`cb-flap ${flapClass(row.status)}`}>
+                    <span className="cb-lamp" />
+                    {row.state}
+                  </span>
+                </div>
+                <div className="cb-card__body">
+                  <span className="cb-card__name">{row.name}</span>
+                  <span className="cb-card__gloss">{row.gloss}</span>
+                </div>
+                <span className="cb-card__foot">
+                  Open
+                  <ArrowRight className="cb-card__arrow" size={14} />
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
