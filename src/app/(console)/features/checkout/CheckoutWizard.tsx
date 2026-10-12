@@ -46,12 +46,12 @@ export default function CheckoutWizard() {
       shopperEmail: personalization.shopperEmail.trim() || "shopper@example.com",
       shopperLocale: personalization.shopperLocale || localeForCountry(state.countryCode),
       channel: "Web",
-      returnUrl: `${origin}/psp/checkout`,
+      returnUrl: `${origin}/checkout`,
     };
   }, [state, personalization]);
 
   // On entry: start a fresh inspector session, and either resolve a 3DS
-  // redirect fallback (shopper returned to /psp/checkout?redirectResult=…)
+  // redirect fallback (shopper returned to /checkout?redirectResult=…)
   // or reset the checkout context for a new flow.
   useEffect(() => {
     log.reset();
@@ -99,7 +99,7 @@ export default function CheckoutWizard() {
       setRedirectErr((err as Error).message);
     } finally {
       // Strip the query so a refresh doesn't re-trigger resolution.
-      window.history.replaceState({}, "", "/psp/checkout");
+      window.history.replaceState({}, "", "/checkout");
       setResolving(false);
       setStep("result");
     }

@@ -18,7 +18,7 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 function hrefFor(id: string): string {
-  return id === "dashboard" ? "/psp" : `/psp/${id}`;
+  return id === "dashboard" ? "/" : `/${id}`;
 }
 
 export default function LeftRail() {
@@ -27,7 +27,7 @@ export default function LeftRail() {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const isDark = resolvedTheme === "dark";
 
-  const activeSlug = pathname.replace(/^\/psp\/?/, "").split("/")[0] || "dashboard";
+  const activeSlug = pathname.replace(/^\//, "").split("/")[0] || "dashboard";
 
   return (
     <aside className="cb-rail-col">
