@@ -19,7 +19,7 @@ function pillClass(s: LogStatus): string {
 }
 
 function scopeLabel(pathname: string): string {
-  const slug = pathname.replace(/^\/psp\/?/, "").split("/")[0];
+  const slug = pathname.replace(/^\//, "").split("/")[0];
   if (!slug) return "Dashboard";
   const item = NAV.flatMap((s) => s.items).find((i) => i.id === slug);
   return item?.label ?? slug;
