@@ -28,7 +28,7 @@ export default function ResultStep({
         </div>
         <div className="cb-ck__actions">
           <button className="cb-btn cb-btn--accent" onClick={onNewPayment}>New payment</button>
-          <Link href="/psp" className="cb-btn">Dashboard</Link>
+          <Link href="/" className="cb-btn">Dashboard</Link>
         </div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function ResultStep({
 
       <div className="cb-ck__actions">
         <button className="cb-btn cb-btn--accent" onClick={onNewPayment}>New payment</button>
-        <Link href="/psp" className="cb-btn">Dashboard</Link>
+        <Link href="/" className="cb-btn">Dashboard</Link>
       </div>
     </div>
   );
