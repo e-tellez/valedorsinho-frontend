@@ -88,7 +88,7 @@ export default function ManageCardsStep({ onBack }: { onBack: () => void }) {
               shopperReference,
               isGuest: false,
               storePaymentMethod: true,
-              returnUrl: `${window.location.origin}/psp/checkout`,
+              returnUrl: `${window.location.origin}/checkout`,
               origin: window.location.origin,
             };
             log.event({ label: "Shopper adds a card", from: "shopper", to: "merchant" });
