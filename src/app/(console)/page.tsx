@@ -7,7 +7,7 @@ import { DASHBOARD_ROWS, type FeatureRow } from "./mock";
 import { useInspector } from "./shell/inspector-context";
 
 function hrefFor(id: string): string {
-  return `/psp/${id}`;
+  return `/${id}`;
 }
 
 function flapClass(s: FeatureRow["status"]): string {
