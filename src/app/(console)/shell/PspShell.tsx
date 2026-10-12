@@ -8,7 +8,7 @@ import Inspector from "./Inspector";
 
 export default function PspShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const slug = pathname.replace(/^\/psp\/?/, "").split("/")[0] || "dashboard";
+  const slug = pathname.replace(/^\//, "").split("/")[0] || "dashboard";
   const showInspector = !NO_INSPECTOR.has(slug);
 
   return (
