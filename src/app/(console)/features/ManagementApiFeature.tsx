@@ -81,7 +81,7 @@ export default function ManagementApiFeature() {
         <section className="cb-mgmt__sec">
           <div className="cb-mgmt__hd">Explore</div>
           <div className="cb-flowgrid">
-            <Link className="cb-flowcard" href="/psp/terminal-fleet">
+            <Link className="cb-flowcard" href="/terminal-fleet">
               <span className="cb-flowcard__badge"><Monitor size={18} /></span>
               <span className="cb-flowcard__txt">
                 <b>Terminals</b>
@@ -89,7 +89,7 @@ export default function ManagementApiFeature() {
               </span>
               <ChevronRight size={18} style={{ color: "var(--cb-ink-3)", flex: "none" }} />
             </Link>
-            <Link className="cb-flowcard" href="/psp/webhooks">
+            <Link className="cb-flowcard" href="/webhooks">
               <span className="cb-flowcard__badge"><MessageSquare size={18} /></span>
               <span className="cb-flowcard__txt">
                 <b>Webhooks</b>

@@ -109,7 +109,7 @@ export default function PayStep({
                 shopperReference: state.shopperReference || undefined,
                 isGuest: state.isGuest,
                 shopperEmail,
-                returnUrl: `${window.location.origin}/psp/checkout`,
+                returnUrl: `${window.location.origin}/checkout`,
                 origin: window.location.origin,
               };
               const id = log.begin({ label: "Create payment", method: "POST", endpoint: "/v71/payments", request: body });
@@ -147,7 +147,7 @@ export default function PayStep({
             isGuest: state.isGuest,
             shopperEmail,
             shopperLocale,
-            returnUrl: `${window.location.origin}/psp/checkout`,
+            returnUrl: `${window.location.origin}/checkout`,
           };
           const id = log.begin({ label: "Create session", method: "POST", endpoint: "/v71/sessions", request: sessionBody });
           const sessionData = await apiPost<SessionsResponse>("/api/checkout/sessions", sessionBody);

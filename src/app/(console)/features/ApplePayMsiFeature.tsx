@@ -122,7 +122,7 @@ export default function ApplePayMsiFeature() {
 
     const s2 = log.begin({
       label: "Create payment · preview", method: "POST", endpoint: "/v71/payments",
-      request: { merchantAccount: "<your merchant account>", paymentMethod: { type: "applepay", applePayToken: "<btoa(JSON.stringify(paymentData))>" }, amount: { value: amountMinor, currency: "MXN" }, reference: "apple-pay-msi-<uuid>", countryCode: "MX", channel: "Web", installments: { value: installments }, returnUrl: `https://${domainName}/psp/apple-pay-msi` },
+      request: { merchantAccount: "<your merchant account>", paymentMethod: { type: "applepay", applePayToken: "<btoa(JSON.stringify(paymentData))>" }, amount: { value: amountMinor, currency: "MXN" }, reference: "apple-pay-msi-<uuid>", countryCode: "MX", channel: "Web", installments: { value: installments }, returnUrl: `https://${domainName}/apple-pay-msi` },
     });
     log.ok(s2, { resultCode: "Authorised", pspReference: "ABCD1234567890EF", amount: { value: amountMinor, currency: "MXN" }, merchantReference: "apple-pay-msi-<uuid>" });
   }
