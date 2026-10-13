@@ -106,7 +106,7 @@ export default function ShopperView({ currentStep, onStepSelect }: ShopperViewPr
         {/* Avatar */}
         <div className="p-4 border-b border-slate-700/50 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-violet-900 border border-violet-500/40 flex items-center justify-center text-xl shadow-lg">
+            <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-600 to-violet-900 border border-violet-500/40 flex items-center justify-center text-xl shadow-lg">
               🤖
             </div>
             <div>

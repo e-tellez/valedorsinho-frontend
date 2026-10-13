@@ -155,7 +155,7 @@ export default function UcpAgenticCommerceDemo() {
 
         <div className="h-0.5 bg-slate-800">
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-violet-400 transition-all duration-500"
+            className="h-full bg-linear-to-r from-violet-500 to-violet-400 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>

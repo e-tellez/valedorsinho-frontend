@@ -75,20 +75,20 @@
            text-gray-700 bg-gray-50 border-2 border-gray-300 rounded-none no-underline
            transition-all duration-200 hover:bg-gray-100 hover:border-gray-400
            hover:-translate-x-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]
-           dark:text-[#00d4ff] dark:bg-[#0a0f1e] dark:border-[#1a2332] 
-           dark:hover:bg-[#0f1624] dark:hover:border-[#00d4ff]
+           dark:text-primary dark:bg-[#0a0f1e] dark:border-[#1a2332] 
+           dark:hover:bg-[#0f1624] dark:hover:border-primary
            dark:hover:shadow-[4px_4px_0_0_rgba(0,212,255,0.2)];
   }
 
   .btn-primary {
     @apply h-11 px-8 font-mono text-[0.8125rem] font-bold uppercase tracking-wider
-           bg-[#00d4ff] text-[#0a0f1e] border-2 border-[#00d4ff] rounded-none
+           bg-primary text-[#0a0f1e] border-2 border-primary rounded-none
            cursor-pointer transition-all duration-200
-           hover:bg-transparent hover:text-[#00d4ff]
+           hover:bg-transparent hover:text-primary
            hover:shadow-[0_0_20px_rgba(0,212,255,0.3)]
-           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#00d4ff]
-           dark:bg-[#00d4ff] dark:text-[#0a0f1e] dark:border-[#00d4ff]
-           dark:hover:bg-transparent dark:hover:text-[#00d4ff];
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary
+           dark:bg-primary dark:text-[#0a0f1e] dark:border-primary
+           dark:hover:bg-transparent dark:hover:text-primary;
   }
 
   .btn-secondary {
@@ -99,7 +99,7 @@
            hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]
            disabled:opacity-30 disabled:cursor-not-allowed
            dark:bg-transparent dark:text-[#8b949e] dark:border-[#1a2332]
-           dark:hover:border-[#00d4ff] dark:hover:text-[#00d4ff]
+           dark:hover:border-primary dark:hover:text-primary
            dark:hover:shadow-[4px_4px_0_0_rgba(0,212,255,0.15)];
   }
 
@@ -107,9 +107,9 @@
     @apply w-full h-11 border-2 border-gray-300 rounded-none px-4 
            font-mono text-[0.875rem] outline-none
            transition-all duration-200 bg-white
-           focus:border-[#00d4ff] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.1)]
+           focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,212,255,0.1)]
            dark:bg-[#0a0f1e] dark:border-[#1a2332] dark:text-[#e6edf3]
-           dark:placeholder:text-[#484f58] dark:focus:border-[#00d4ff]
+           dark:placeholder:text-[#484f58] dark:focus:border-primary
            dark:focus:shadow-[0_0_0_3px_rgba(0,212,255,0.15)];
   }
   

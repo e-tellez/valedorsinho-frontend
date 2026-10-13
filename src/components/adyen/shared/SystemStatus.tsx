@@ -32,7 +32,7 @@ export default function SystemStatus() {
   const statusColor = isOnline === null 
     ? "bg-[#ff4444]" 
     : isOnline 
-    ? "bg-[#00ff88]" 
+    ? "bg-success" 
     : "bg-[#ff4444]";
   
   const statusShadow = isOnline === null

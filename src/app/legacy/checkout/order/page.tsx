@@ -123,7 +123,7 @@ export default function OrderPage() {
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
               placeholder="0.00"
-              className="border-none outline-none px-3 h-10 text-base w-full bg-transparent text-gray-900 dark:text-[#00d4ff] font-mono font-bold placeholder:text-gray-400 dark:placeholder:text-slate-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="border-none outline-none px-3 h-10 text-base w-full bg-transparent text-gray-900 dark:text-primary font-mono font-bold placeholder:text-gray-400 dark:placeholder:text-slate-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>

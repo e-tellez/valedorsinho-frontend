@@ -183,7 +183,7 @@ export function PaymentScreen({ tokenized }: PaymentScreenProps) {
             {tokenized ? '✓ Authenticated' : '⟳ Authenticating…'}
           </div>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 text-white mb-4">
+        <div className="p-4 rounded-xl bg-linear-to-br from-slate-800 to-slate-700 text-white mb-4">
           <div className="flex justify-between mb-5"><div className="w-8 h-5 rounded bg-yellow-400/80" /><span className="text-xs text-slate-300">VISA</span></div>
           <div className="text-sm font-mono tracking-widest mb-3">•••• •••• •••• 4242</div>
           <div className="flex justify-between text-xs text-slate-300"><span>SHOPBOT USER</span><span>12/27</span></div>

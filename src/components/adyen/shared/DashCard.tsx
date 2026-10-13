@@ -37,9 +37,9 @@ export default function DashCard({
       </div>
       {!disabled && (
         <div className="shrink-0 flex flex-col gap-0.5">
-          <div className="w-1.5 h-1.5 bg-[#00d4ff] rounded-full" />
-          <div className="w-1.5 h-1.5 bg-[#00d4ff]/50 rounded-full" />
-          <div className="w-1.5 h-1.5 bg-[#00d4ff]/20 rounded-full" />
+          <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+          <div className="w-1.5 h-1.5 bg-primary/50 rounded-full" />
+          <div className="w-1.5 h-1.5 bg-primary/20 rounded-full" />
         </div>
       )}
     </>
@@ -49,7 +49,7 @@ export default function DashCard({
     "group relative flex items-center gap-3 bg-white dark:bg-[#0a0f1e] rounded-none py-3 px-3 border-2 border-gray-300 dark:border-[#1a2332] no-underline text-inherit transition-all duration-200 cursor-pointer overflow-hidden";
   const interactive = disabled
     ? " opacity-50 !cursor-default"
-    : " hover:border-[#00d4ff] hover:shadow-[0_0_20px_rgba(0,212,255,0.15)] hover:-translate-y-0.5 dark:hover:border-[#00d4ff] dark:hover:shadow-[0_0_30px_rgba(0,212,255,0.2)]";
+    : " hover:border-primary hover:shadow-[0_0_20px_rgba(0,212,255,0.15)] hover:-translate-y-0.5 dark:hover:border-primary dark:hover:shadow-[0_0_30px_rgba(0,212,255,0.2)]";
 
   if (disabled || !href) {
     return <div className={base + interactive}>{content}</div>;
@@ -57,7 +57,7 @@ export default function DashCard({
 
   return (
     <Link href={href} className={base + interactive}>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00d4ff]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+      <div className="absolute inset-0 bg-linear-to-r from-transparent via-primary/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
       <div className="relative z-10 flex items-center gap-4 w-full">{content}</div>
     </Link>
   );
