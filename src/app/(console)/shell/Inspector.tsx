@@ -74,10 +74,11 @@ function LogRow({ entry, open, onToggle }: { entry: LogEntry; open: boolean; onT
     entry.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || entry.id;
 
   // Webhooks are not expandable here — they have their own feature section.
-  // Config entries (the live checkout configuration) stay open so edits show.
+  // Config entries (the live checkout configuration) join the accordion like
+  // other rows: collapsible and collapsed by default.
   const isConfig = entry.kind === "config";
-  const expandable = entry.kind !== "webhook" && !isConfig;
-  const showBody = isConfig || (expandable && open);
+  const expandable = entry.kind !== "webhook";
+  const showBody = expandable && open;
 
   const header = (
     <>

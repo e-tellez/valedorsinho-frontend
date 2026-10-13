@@ -24,6 +24,39 @@ export interface AdyenSetupConfig {
 }
 
 // ---------------------------------------------------------------------------
+// Saved company accounts (from /api/auth/accounts) — the API key is never
+// returned, only whether one is configured.
+// ---------------------------------------------------------------------------
+
+export interface AdyenAccount {
+  id: string;
+  label: string;
+  clientKey: string;
+  merchantAccount: string;
+  isActive: boolean;
+  locked: boolean;
+  apiKeyConfigured: boolean;
+}
+
+export interface AccountListResponse {
+  accounts: AdyenAccount[];
+}
+
+// ---------------------------------------------------------------------------
+// Admin user & role management (from /api/admin/users)
+// ---------------------------------------------------------------------------
+
+export interface ManagedUser {
+  userId: string;
+  email: string;
+  role: "admin" | "im" | "user";
+}
+
+export interface UserListResponse {
+  users: ManagedUser[];
+}
+
+// ---------------------------------------------------------------------------
 // Checkout
 // ---------------------------------------------------------------------------
 

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
+import { useCheckoutConfig } from "@/hooks/adyen/useCheckoutConfig";
 import { apiPost } from "@/lib/adyen/api";
 import { localeForCountry } from "@/lib/adyen/constants";
 import { useCallLogger } from "../../shell/useCallLogger";
@@ -18,10 +19,28 @@ type Step = "setup" | "personalize" | "integration" | "pay" | "manage" | "result
 
 const STEP_INDEX: Partial<Record<Step, number>> = { setup: 1, personalize: 2, integration: 3, pay: 4 };
 
-const EMPTY_PERSONALIZATION: Personalization = { shopperEmail: "", shopperLocale: "" };
+const EMPTY_PERSONALIZATION: Personalization = {
+  shopperEmail: "",
+  shopperLocale: "",
+  showPayButton: true,
+  showAmountOnButton: true,
+  secondaryAmountEnabled: false,
+  secondaryAmountCurrency: "",
+  secondaryAmountValue: "",
+  openFirstPaymentMethod: true,
+  openFirstStoredPaymentMethod: true,
+  showStoredPaymentMethods: true,
+  showPaymentMethods: true,
+  showRadioButton: false,
+  hasHolderName: true,
+  holderNameRequired: true,
+  billingAddressRequired: false,
+  enableStoreDetails: false,
+};
 
 export default function CheckoutWizard() {
   const { state, reset: resetCheckout } = useCheckout();
+  const { config } = useCheckoutConfig();
   const log = useCallLogger();
 
   const [step, setStep] = useState<Step>("setup");
@@ -33,22 +52,48 @@ export default function CheckoutWizard() {
 
   const configIdRef = useRef<string | null>(null);
 
-  // The live "configuration object" the shopper tunes on the Personalize step.
-  // Reflects the effective values that will be sent (reference is server-assigned).
+  // The live AdyenCheckout / Drop-in configuration object the shopper tunes on
+  // the Personalize step. Mirrors the config that PayStep passes to the SDK when
+  // the component mounts (clientKey/environment are resolved from the backend).
   const configObject = useMemo(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const p = personalization;
+    const locale = p.shopperLocale || localeForCountry(state.countryCode);
+    const secondaryValue = Math.round((parseFloat(p.secondaryAmountValue) || 0) * 100);
+
     return {
-      amount: { value: state.amountMinorUnits, currency: state.currency },
+      clientKey: "‹from /api/config/client›",
+      merchantAccount: config?.merchantAccount ?? "‹from /api/config/client›",
+      environment: "test",
+      locale,
       countryCode: state.countryCode,
-      reference: "‹assigned by server›",
+      ...(p.showAmountOnButton
+        ? { amount: { value: state.amountMinorUnits, currency: state.currency } }
+        : {}),
+      ...(p.secondaryAmountEnabled && p.secondaryAmountCurrency && secondaryValue > 0
+        ? { secondaryAmount: { value: secondaryValue, currency: p.secondaryAmountCurrency, currencyDisplay: "symbol" } }
+        : {}),
+      showPayButton: p.showPayButton,
+      analytics: { enabled: false },
+      threeDS2Configuration: { challengeWindowSize: "03" },
+      paymentMethodsConfiguration: {
+        card: {
+          hasHolderName: p.hasHolderName,
+          holderNameRequired: p.holderNameRequired,
+          billingAddressRequired: p.billingAddressRequired,
+          enableStoreDetails: p.enableStoreDetails,
+        },
+      },
+      dropin: {
+        openFirstPaymentMethod: p.openFirstPaymentMethod,
+        openFirstStoredPaymentMethod: p.openFirstStoredPaymentMethod,
+        showStoredPaymentMethods: p.showStoredPaymentMethods,
+        showPaymentMethods: p.showPaymentMethods,
+        showRadioButton: p.showRadioButton,
+      },
+      shopperEmail: p.shopperEmail.trim() || "shopper@example.com",
       ...(state.shopperReference ? { shopperReference: state.shopperReference } : {}),
-      isGuest: state.isGuest,
-      shopperEmail: personalization.shopperEmail.trim() || "shopper@example.com",
-      shopperLocale: personalization.shopperLocale || localeForCountry(state.countryCode),
-      channel: "Web",
-      returnUrl: `${origin}/checkout`,
     };
-  }, [state, personalization]);
+  }, [state, personalization, config]);
 
   // On entry: start a fresh inspector session, and either resolve a 3DS
   // redirect fallback (shopper returned to /checkout?redirectResult=…)
@@ -69,7 +114,7 @@ export default function CheckoutWizard() {
   useEffect(() => {
     if (step !== "personalize") return;
     if (configIdRef.current) log.setConfig(configIdRef.current, configObject);
-    else configIdRef.current = log.config(configObject, "Checkout configuration");
+    else configIdRef.current = log.config(configObject, "Drop-in configuration");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, configObject]);
 
@@ -128,6 +173,9 @@ export default function CheckoutWizard() {
               Run an Adyen payment end-to-end. Each call posts to the inspector on the right.
             </p>
           </div>
+          {config?.merchantAccount && (
+            <span className="cb-pill" title="Active merchant account">Merchant · {config.merchantAccount}</span>
+          )}
         </header>
 
         {resolving ? (
