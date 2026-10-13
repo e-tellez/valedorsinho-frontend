@@ -283,6 +283,11 @@
 .cb-ck__actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .cb-btn--pull-left { margin-right: auto; }
 
+/* Setup: payment-methods preview */
+.cb-ck__fetch { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+.cb-ck__fetchcap { font-size: .8rem; color: var(--cb-ink-3); line-height: 1.5; }
+.cb-ck__fetchnote { font-size: .8rem; color: var(--cb-ink-2); }
+
 /* Form steps sit on a ledger sheet; inputs recess as inset wells. */
 .cb-panel__bd--form { padding: 22px; }
 .cb-panel__bd--form .cb-field:last-child { margin-bottom: 0; }
