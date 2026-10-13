@@ -283,6 +283,18 @@
 .cb-ck__actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .cb-btn--pull-left { margin-right: auto; }
 
+/* Setup: payment-methods preview */
+.cb-ck__fetch { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+.cb-ck__fetchcap { font-size: .8rem; color: var(--cb-ink-3); line-height: 1.5; }
+.cb-ck__fetchnote { font-size: .8rem; color: var(--cb-ink-2); }
+
+/* Personalize: config groups */
+.cb-ck .cb-panel + .cb-panel { margin-top: 14px; }
+.cb-ck__group { font-family: var(--cb-mono); font-size: .58rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--cb-ink-3); margin: 0 0 10px; }
+.cb-ck__group .cb-field__hint { margin-left: 6px; }
+.cb-ck__group code { font-family: var(--cb-mono); text-transform: none; letter-spacing: 0; }
+.cb-ck__secondary { margin-top: 10px; }
+
 /* Form steps sit on a ledger sheet; inputs recess as inset wells. */
 .cb-panel__bd--form { padding: 22px; }
 .cb-panel__bd--form .cb-field:last-child { margin-bottom: 0; }
