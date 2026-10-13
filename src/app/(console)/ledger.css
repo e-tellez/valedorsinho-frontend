@@ -649,6 +649,29 @@ a.cb-flowcard { text-decoration: none; color: inherit; }
 .cb-whdetail { padding: 4px 16px 16px; }
 
 /* ---------------------------------------------------------- */
+/* Admin — user & role rows                                    */
+/* ---------------------------------------------------------- */
+.cb-usrrow { display: grid; grid-template-columns: 1fr 86px 210px; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--cb-line); }
+.cb-usrrow:last-child { border-bottom: 0; }
+.cb-usrrow__id b { display: block; font-size: .82rem; font-weight: 600; color: var(--cb-ink); }
+.cb-usrrow__id span { font-family: var(--cb-mono); font-size: .62rem; color: var(--cb-ink-3); word-break: break-all; }
+.cb-usrrole { justify-self: start; text-transform: uppercase; }
+.cb-usrrole--admin { color: var(--cb-gold); border-color: color-mix(in srgb, var(--cb-gold) 40%, var(--cb-line-2)); }
+.cb-usrrow__set { display: inline-flex; align-items: center; gap: 8px; justify-self: end; }
+.cb-usrrow__set > span { font-family: var(--cb-mono); font-size: .58rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--cb-ink-3); }
+.cb-usrrow__select { width: 118px; height: 34px; }
+
+/* ---------------------------------------------------------- */
+/* Set Up — company account rows                               */
+/* ---------------------------------------------------------- */
+.cb-btn--sm { height: 30px; padding: 0 10px; font-size: .72rem; gap: 5px; }
+.cb-acctrow { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--cb-line); }
+.cb-acctrow:last-child { border-bottom: 0; }
+.cb-acctrow__main b { display: inline-flex; align-items: center; gap: 8px; font-size: .84rem; font-weight: 600; color: var(--cb-ink); }
+.cb-acctrow__meta { display: block; margin-top: 3px; font-family: var(--cb-mono); font-size: .64rem; color: var(--cb-ink-3); word-break: break-all; }
+.cb-acctrow__actions { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---------------------------------------------------------- */
 /* Reduced motion                                              */
 /* ---------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
