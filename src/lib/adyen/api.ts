@@ -57,6 +57,9 @@ export async function apiFetch<T = unknown>(
     throw new Error(message);
   }
 
+  // 204 No Content (e.g. DELETE) has no body to parse.
+  if (response.status === 204) return undefined as T;
+
   return response.json();
 }
 
@@ -94,4 +97,8 @@ export function apiPut<T = unknown>(
     method: "PUT",
     body: JSON.stringify(body),
   });
+}
+
+export function apiDelete<T = unknown>(path: string): Promise<T> {
+  return apiFetch<T>(path, { method: "DELETE" });
 }

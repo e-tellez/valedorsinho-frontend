@@ -12,6 +12,7 @@ import TerminalFeature from "../features/terminal/TerminalFeature";
 import TerminalFleetFeature from "../features/TerminalFleetFeature";
 import ApplePayMsiFeature from "../features/ApplePayMsiFeature";
 import ManagementApiFeature from "../features/ManagementApiFeature";
+import AdminFeature from "../features/AdminFeature";
 import ComingSoon from "../features/ComingSoon";
 
 function labelFor(slug: string): string {
@@ -44,6 +45,8 @@ export default function FeaturePage() {
       return <ApplePayMsiFeature />;
     case "management-api":
       return <ManagementApiFeature />;
+    case "admin":
+      return <AdminFeature />;
     default:
       return <ComingSoon title={labelFor(slug)} slug={slug} />;
   }
