@@ -86,13 +86,39 @@ export default function PayStep({
           ? { base: { color: "#f1f5f9", caretColor: "#f1f5f9" }, placeholder: { color: "#64748b" }, error: { color: "#fca5a5" } }
           : {};
 
+        // Card options tuned on the Personalize step; shared by the Drop-in
+        // paymentMethodsConfiguration and the standalone Card component.
+        const cardConfig = {
+          hasHolderName: personalization.hasHolderName,
+          holderNameRequired: personalization.holderNameRequired,
+          billingAddressRequired: personalization.billingAddressRequired,
+          enableStoreDetails: personalization.enableStoreDetails,
+          styles: adyenCardStyles,
+        };
+        const secondaryValue = Math.round((parseFloat(personalization.secondaryAmountValue) || 0) * 100);
+
         let flowConfig: Record<string, unknown>;
 
         if (isAdvanced) {
-          const params = new URLSearchParams({ countryCode: state.countryCode, currency: state.currency, shopperLocale });
+          const params = new URLSearchParams({
+            countryCode: state.countryCode,
+            currency: state.currency,
+            amountValue: String(state.amountMinorUnits),
+            shopperLocale,
+          });
           if (state.shopperReference) params.set("shopperReference", state.shopperReference);
 
-          const pmId = log.begin({ label: "List payment methods", method: "POST", endpoint: "/v71/paymentMethods" });
+          const pmId = log.begin({
+            label: "List payment methods",
+            method: "POST",
+            endpoint: "/v71/paymentMethods",
+            request: {
+              countryCode: state.countryCode,
+              amount: { value: state.amountMinorUnits, currency: state.currency },
+              shopperLocale,
+              ...(state.shopperReference ? { shopperReference: state.shopperReference } : {}),
+            },
+          });
           const pmData = await apiGet<PaymentMethodsResponse>(`/api/checkout/payment-methods?${params.toString()}`);
           log.ok(pmId, pmData.response);
 
@@ -164,15 +190,16 @@ export default function PayStep({
           locale: shopperLocale,
           analytics: { enabled: false },
           threeDS2Configuration: { challengeWindowSize: "03" },
+          ...(personalization.showAmountOnButton
+            ? { amount: { value: state.amountMinorUnits, currency: state.currency } }
+            : {}),
+          ...(personalization.secondaryAmountEnabled && personalization.secondaryAmountCurrency && secondaryValue > 0
+            ? { secondaryAmount: { value: secondaryValue, currency: personalization.secondaryAmountCurrency, currencyDisplay: "symbol" } }
+            : {}),
           ...(isDropin && {
+            showPayButton: personalization.showPayButton,
             paymentMethodsConfiguration: {
-              card: {
-                hasHolderName: true,
-                holderNameRequired: true,
-                billingAddressRequired: false,
-                enableStoreDetails: !state.isGuest,
-                styles: adyenCardStyles,
-              },
+              card: cardConfig,
               storedCard: { styles: adyenCardStyles },
             },
           }),
@@ -183,17 +210,17 @@ export default function PayStep({
 
         if (isDropin) {
           componentRef.current = checkout
-            .create("dropin", { showStoredPaymentMethods: !state.isGuest, openFirstPaymentMethod: true })
+            .create("dropin", {
+              showStoredPaymentMethods: personalization.showStoredPaymentMethods,
+              openFirstPaymentMethod: personalization.openFirstPaymentMethod,
+              openFirstStoredPaymentMethod: personalization.openFirstStoredPaymentMethod,
+              showPaymentMethods: personalization.showPaymentMethods,
+              showRadioButton: personalization.showRadioButton,
+            })
             .mount(containerRef.current);
         } else {
           const cardComponent = checkout
-            .create("card", {
-              hasHolderName: true,
-              holderNameRequired: true,
-              billingAddressRequired: false,
-              enableStoreDetails: !state.isGuest,
-              styles: adyenCardStyles,
-            })
+            .create("card", cardConfig)
             .mount(containerRef.current);
           componentRef.current = cardComponent;
 
