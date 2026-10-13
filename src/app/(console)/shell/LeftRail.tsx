@@ -1,20 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutGrid, CreditCard, Smartphone, FileText, CheckSquare,
   Monitor, Package, Nfc, MessageSquare, Pencil, Network, Settings,
-  Wallet, Layers, ShoppingBag, ChevronDown, Sun, Moon, type LucideIcon,
+  Wallet, Layers, ShoppingBag, Users, ChevronDown, Sun, Moon, type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { NAV, PROFILES } from "../mock";
+import { apiFetch } from "@/lib/adyen/api";
+import type { AdyenSetupConfig } from "@/lib/adyen/types";
+import { NAV, PROFILES, type NavSection } from "../mock";
 
 const ICONS: Record<string, LucideIcon> = {
   LayoutGrid, CreditCard, Smartphone, FileText, CheckSquare,
   Monitor, Package, Nfc, MessageSquare, Pencil, Network, Settings,
-  Wallet, Layers, ShoppingBag,
+  Wallet, Layers, ShoppingBag, Users,
+};
+
+const ADMIN_SECTION: NavSection = {
+  label: "Admin",
+  items: [{ id: "admin", label: "Users", icon: "Users" }],
 };
 
 function hrefFor(id: string): string {
@@ -25,9 +32,18 @@ export default function LeftRail() {
   const { resolvedTheme, setMode } = useTheme();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [isAdmin, setIsAdmin] = useState(false);
   const isDark = resolvedTheme === "dark";
 
   const activeSlug = pathname.replace(/^\//, "").split("/")[0] || "dashboard";
+
+  useEffect(() => {
+    apiFetch<AdyenSetupConfig>("/api/auth/config")
+      .then((config) => setIsAdmin(config.role === "admin"))
+      .catch(() => setIsAdmin(false));
+  }, []);
+
+  const sections = isAdmin ? [...NAV, ADMIN_SECTION] : NAV;
 
   return (
     <aside className="cb-rail-col">
@@ -57,7 +73,7 @@ export default function LeftRail() {
           })}
         </div>
 
-        {NAV.map((section) => {
+        {sections.map((section) => {
           const collapsible = section.items.length > 1;
           const open = !collapsible || !collapsed[section.label];
           return (

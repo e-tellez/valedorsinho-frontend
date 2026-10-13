@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useCheckout } from "@/context/adyen/CheckoutContext";
+import { useCheckoutConfig } from "@/hooks/adyen/useCheckoutConfig";
 import { apiPost } from "@/lib/adyen/api";
 import { localeForCountry } from "@/lib/adyen/constants";
 import { useCallLogger } from "../../shell/useCallLogger";
@@ -39,6 +40,7 @@ const EMPTY_PERSONALIZATION: Personalization = {
 
 export default function CheckoutWizard() {
   const { state, reset: resetCheckout } = useCheckout();
+  const { config } = useCheckoutConfig();
   const log = useCallLogger();
 
   const [step, setStep] = useState<Step>("setup");
@@ -60,6 +62,7 @@ export default function CheckoutWizard() {
 
     return {
       clientKey: "‹from /api/config/client›",
+      merchantAccount: config?.merchantAccount ?? "‹from /api/config/client›",
       environment: "test",
       locale,
       countryCode: state.countryCode,
@@ -90,7 +93,7 @@ export default function CheckoutWizard() {
       shopperEmail: p.shopperEmail.trim() || "shopper@example.com",
       ...(state.shopperReference ? { shopperReference: state.shopperReference } : {}),
     };
-  }, [state, personalization]);
+  }, [state, personalization, config]);
 
   // On entry: start a fresh inspector session, and either resolve a 3DS
   // redirect fallback (shopper returned to /checkout?redirectResult=…)
@@ -170,6 +173,9 @@ export default function CheckoutWizard() {
               Run an Adyen payment end-to-end. Each call posts to the inspector on the right.
             </p>
           </div>
+          {config?.merchantAccount && (
+            <span className="cb-pill" title="Active merchant account">Merchant · {config.merchantAccount}</span>
+          )}
         </header>
 
         {resolving ? (

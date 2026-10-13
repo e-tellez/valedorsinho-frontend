@@ -45,7 +45,7 @@ export const PROFILES: ProfileDef[] = [
 
 // Features already migrated into the console get a live route; the rest render
 // a "coming soon" placeholder that links to their legacy page.
-export const MIGRATED = new Set<string>(["webhooks", "payload-validator", "payload-suggested", "nfc-formatter", "setup", "checkout", "terminal-payments", "terminal-fleet", "apple-pay-msi", "management-api"]);
+export const MIGRATED = new Set<string>(["webhooks", "payload-validator", "payload-suggested", "nfc-formatter", "setup", "checkout", "terminal-payments", "terminal-fleet", "apple-pay-msi", "management-api", "admin"]);
 
 // Features that don't warrant the message inspector (no meaningful external
 // Adyen traffic to trace, or they are the viewer themselves). The panel is
@@ -57,6 +57,7 @@ export const NO_INSPECTOR = new Set<string>([
   "nfc-formatter",
   "webhooks",
   "setup",
+  "admin",
 ]);
 
 export const NAV: NavSection[] = [

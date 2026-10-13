@@ -253,6 +253,7 @@ export default function PayStep({
       <div className="cb-ordsum">
         <span><b>Order total:</b> {state.currency} {displayAmount}</span>
         <span><b>Shopper:</b> {state.shopperReference || "Guest"}</span>
+        {config?.merchantAccount && <span><b>Merchant account:</b> {config.merchantAccount}</span>}
       </div>
 
       <div className="cb-panel">
