@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T00:00:00Z",
+  "generatedAt": "2026-10-12T00:00:00Z",
   "title": "Design System: Valedorsinho",
   "extensions": {
     "colorMeta": {
@@ -15,25 +15,37 @@
       "party-adyen": { "role": "category", "displayName": "Adyen Plum" }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Page titles only." },
-      "label": { "displayName": "Section Label", "purpose": "Mono uppercase group headlines and micro-labels." },
-      "mono": { "displayName": "Data / Mono", "purpose": "Figures, references, endpoints, JSON payloads." }
+      "display": { "displayName": "Display", "purpose": "Page titles only (e.g. 'Payment Service Provider')." },
+      "title": { "displayName": "Title", "purpose": "Feature/service names, panel and inspector headings." },
+      "body": { "displayName": "Body", "purpose": "Descriptions and prose; keep to ~70ch." },
+      "label": { "displayName": "Section Label", "purpose": "Mono uppercase group headlines and micro-labels (0.55-0.62rem)." },
+      "mono": { "displayName": "Data / Mono", "purpose": "Figures, references, endpoints, JSON payloads, timestamps." }
     },
     "shadows": [
-      { "name": "panel", "value": "0 1px 2px rgba(39,33,22,.08), 0 8px 24px rgba(39,33,22,.08)", "purpose": "Resting elevation for panels and rows (light)." },
+      { "name": "panel", "value": "0 1px 2px rgba(39,33,22,.08), 0 8px 24px rgba(39,33,22,.08)", "purpose": "Resting elevation for panels, rows, service cards, and the profile switcher (light)." },
       { "name": "panel-night", "value": "0 1px 2px rgba(0,0,0,.5), 0 14px 38px rgba(0,0,0,.55)", "purpose": "Resting elevation (dark)." },
+      { "name": "panel-sm", "value": "0 1px 2px rgba(39,33,22,.06)", "purpose": "Subtle lift for nav/profile active state and service cards at rest." },
       { "name": "night-highlight", "value": "inset 0 1px 0 rgba(255,255,255,.05)", "purpose": "Hairline top highlight that lifts surfaces off the charcoal ground where drop shadows don't register." }
     ],
     "motion": [
-      { "name": "settle", "value": "cubic-bezier(.2,.75,.2,1)", "purpose": "The one authored moment: rows and tiles settle in (fade + 5px rise, ~180-220ms). No departures-board flips, no glows." },
-      { "name": "state", "value": "ease", "purpose": "120-140ms background/border/color transitions on hover, focus, and selection." }
+      { "name": "settle", "value": "ease", "purpose": "The one authored moment: rows, cards, and tiles settle in (fade + 5px rise, ~180ms). No departures-board flips, no glows." },
+      { "name": "state", "value": "ease", "purpose": "120-160ms background/border/color transitions on hover, focus, and selection; service cards add a 2px translateY lift on hover." }
     ],
     "breakpoints": [
       { "name": "tight", "value": "1180px" },
       { "name": "stack", "value": "940px" }
-    ]
+    ],
+    "reducedMotion": "All settle animations and the card hover lift are disabled under prefers-reduced-motion."
   },
   "components": [
+    {
+      "name": "Service Card",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Dashboard option tile: an icon badge anchors each service, a status flap sits top-right, and a hairline-ruled 'Open' footer turns gold on hover (the single gold mark). Replaces the earlier flat numbered row list.",
+      "html": "<a class=\"ds-card\"><div class=\"ds-card__top\"><span class=\"ds-card__badge\"><svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"2\" y1=\"10\" x2=\"22\" y2=\"10\"/></svg></span><span class=\"ds-card__status ds-card__status--ok\"><span class=\"ds-card__lamp\"></span>LIVE</span></div><div class=\"ds-card__body\"><span class=\"ds-card__name\">Checkout</span><span class=\"ds-card__gloss\">Drop-in, Sessions &amp; Components payment flows.</span></div><span class=\"ds-card__foot\">Open<svg class=\"ds-card__arrow\" viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></span></a>",
+      "css": ".ds-card{display:flex;flex-direction:column;min-width:0;border:1px solid #d8d1c3;border-radius:10px;overflow:hidden;background:#faf7f0;box-shadow:0 1px 2px rgba(39,33,22,.06);text-align:left;cursor:pointer;text-decoration:none;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease}.ds-card:hover{transform:translateY(-2px);box-shadow:0 1px 2px rgba(39,33,22,.08),0 8px 24px rgba(39,33,22,.08);border-color:#c2b9a7}.ds-card__top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 16px 0}.ds-card__badge{display:flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;border-radius:8px;background:#f1ede3;border:1px solid #d8d1c3;color:#585a54;transition:color .14s ease,border-color .14s ease}.ds-card:hover .ds-card__badge{color:#1b1e22;border-color:#c2b9a7}.ds-card__status{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid #c2b9a7;border-radius:999px;background:#f1ede3;color:#1d7a4b;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.ds-card__lamp{width:6px;height:6px;border-radius:999px;background:currentColor}.ds-card__body{flex:1;padding:13px 16px 16px}.ds-card__name{display:block;font-family:'Public Sans',sans-serif;font-size:1rem;font-weight:600;letter-spacing:-.01em;color:#1b1e22;line-height:1.3}.ds-card__gloss{display:block;font-family:'Public Sans',sans-serif;font-size:.8rem;color:#585a54;line-height:1.5;margin-top:5px}.ds-card__foot{display:flex;align-items:center;gap:6px;padding:11px 16px;border-top:1px solid #d8d1c3;font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8a857a;transition:color .14s ease}.ds-card:hover .ds-card__foot{color:#8a5e0f}.ds-card__arrow{transition:transform .16s ease}.ds-card:hover .ds-card__arrow{transform:translateX(3px)}"
+    },
     {
       "name": "Profile Switcher Tile (active)",
       "kind": "custom",
@@ -59,12 +71,36 @@
       "css": ".ds-log{padding:12px 14px;border-bottom:1px solid #c2b9a7;background:#faf7f0}.ds-log__meta{display:flex;align-items:center;gap:9px;margin-bottom:7px}.ds-log__time{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:#8a857a}.ds-hop{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:600;text-transform:uppercase;color:#585a54}.ds-hop i{width:6px;height:6px;border-radius:999px;display:inline-block}.ds-pill{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;padding:2px 7px;border-radius:6px;background:#f1ede3;border:1px solid #c2b9a7;color:#585a54}.ds-pill--ok{color:#1d7a4b;border-color:#9cc3ac}.ds-log__label b{display:block;font-family:'Public Sans',sans-serif;font-size:.85rem;font-weight:600;color:#1b1e22;line-height:1.3}.ds-log__label span{display:block;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:#8a857a;margin-top:3px;word-break:break-all}"
     },
     {
+      "name": "Status Flap",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Rounded mono-uppercase tag with a lamp dot, colored by state: posted-green (ok), gold (pending, soft blink), exception-red (error), ink-faint (info). Quiet and bordered — never a glowing traffic-light lamp.",
+      "html": "<span class=\"ds-flap ds-flap--ok\"><span class=\"ds-flap__lamp\"></span>LIVE</span>",
+      "css": ".ds-flap{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:86px;padding:4px 9px;border:1px solid #c2b9a7;border-radius:999px;background:#f1ede3;color:#585a54;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.ds-flap__lamp{width:6px;height:6px;border-radius:999px;background:currentColor;flex:none}.ds-flap--ok{color:#1d7a4b}.ds-flap--pend{color:#a9771c}.ds-flap--err{color:#a9242b}.ds-flap--info{color:#8a857a}"
+    },
+    {
       "name": "Accent Button",
       "kind": "button",
       "refersTo": "button-accent",
       "description": "Primary action; gold fill used sparingly.",
       "html": "<button class=\"ds-btn-accent\"><svg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"currentColor\"><path d=\"M8 5v14l11-7z\"/></svg>Replay exchange</button>",
       "css": ".ds-btn-accent{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:40px;padding:0 16px;border-radius:7px;background:#a9771c;color:#fff;border:1px solid #a9771c;font-family:'Public Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:box-shadow .12s ease}.ds-btn-accent:hover{box-shadow:0 1px 2px rgba(39,33,22,.08),0 8px 24px rgba(39,33,22,.08)}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action: sheet background, ink text, hairline rule border. Hover adds a soft panel shadow (no translate). Disabled drops to 40% opacity.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:40px;padding:0 16px;border-radius:7px;background:#faf7f0;color:#1b1e22;border:1px solid #c2b9a7;font-family:'Public Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:border-color .12s ease,box-shadow .12s ease}.ds-btn-ghost:hover{box-shadow:0 1px 2px rgba(39,33,22,.08),0 8px 24px rgba(39,33,22,.08)}.ds-btn-ghost:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Sheet-background field with a 1px rule border and mono value text. Focus is a gold border plus a 3px gold-tinted ring — never a glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" value=\"merchantAccount\" />",
+      "css": ".ds-input{width:100%;height:40px;padding:0 12px;border-radius:7px;background:#faf7f0;border:1px solid #c2b9a7;color:#1b1e22;font-family:'JetBrains Mono',monospace;font-size:.85rem;transition:border-color .14s ease,box-shadow .14s ease}.ds-input:focus{outline:none;border-color:#a9771c;box-shadow:0 0 0 3px rgba(169,119,28,.18)}.ds-input::placeholder{color:#8a857a}"
     }
   ],
   "narrative": {
@@ -80,6 +116,7 @@
     "rules": [
       { "name": "The One Gold Rule", "body": "Gold means 'active/selected' and nothing else. If two things on a screen are gold, one is wrong.", "section": "colors" },
       { "name": "The Red-for-Exceptions Rule", "body": "Red is only ever a refusal, error, or broken reconciliation — never decoration or a party color.", "section": "colors" },
+      { "name": "The Mono-for-Measurement Rule", "body": "Monospace is only for code, data, endpoints, references, and labels — never as a 'technical' costume on prose.", "section": "typography" },
       { "name": "The No-Signage Rule", "body": "No condensed, all-caps signage display lettering. Headlines are Public Sans.", "section": "typography" },
       { "name": "The Dark-Needs-a-Highlight Rule", "body": "On charcoal, pair every lifted surface with a 1px top highlight; a drop shadow alone is invisible.", "section": "elevation" }
     ],

@@ -7,16 +7,53 @@ import { http, HttpResponse } from "msw";
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ---------------------------------------------------------------------------
+// Shared mock state — multiple company accounts with one active, plus users.
+// Lets the account switcher and admin panel behave coherently in mock mode.
+// ---------------------------------------------------------------------------
+
+interface MockAccount {
+  id: string;
+  label: string;
+  clientKey: string;
+  merchantAccount: string;
+  locked: boolean;
+  apiKeyConfigured: boolean;
+}
+
+const mockAccounts: MockAccount[] = [
+  { id: "acct-1", label: "Primary", clientKey: "test_MOCKPRIMARY0000000000000000000000", merchantAccount: "MockMerchantECOM", locked: false, apiKeyConfigured: true },
+  { id: "acct-2", label: "Secondary Co", clientKey: "test_MOCKSECONDARY00000000000000000000", merchantAccount: "SecondaryCoECOM", locked: false, apiKeyConfigured: true },
+];
+let mockActiveId = "acct-1";
+let mockAccountSeq = 2;
+const FALLBACK_ACCOUNT: MockAccount = { id: "", label: "", clientKey: "", merchantAccount: "", locked: false, apiKeyConfigured: false };
+const activeAccount = (): MockAccount => mockAccounts.find((a) => a.id === mockActiveId) ?? mockAccounts[0] ?? FALLBACK_ACCOUNT;
+const toAccountDto = (a: MockAccount) => ({ ...a, isActive: a.id === mockActiveId });
+
+interface MockUser {
+  userId: string;
+  email: string;
+  role: "admin" | "im" | "user";
+}
+
+const mockUsers: MockUser[] = [
+  { userId: "me", email: "me@adyen.com", role: "admin" },
+  { userId: "u2", email: "colleague@adyen.com", role: "im" },
+  { userId: "u3", email: "viewer@adyen.com", role: "user" },
+];
+
+// ---------------------------------------------------------------------------
 // 1. Config
 // ---------------------------------------------------------------------------
 
 const configHandlers = [
   http.get("/api/config/client", async () => {
     await delay(120);
+    const active = activeAccount();
     return HttpResponse.json({
-      clientKey: "test_MOCK0000000000000000000000000000000",
+      clientKey: active.clientKey,
       environment: "test",
-      merchantAccount: "MockMerchantECOM",
+      merchantAccount: active.merchantAccount,
     });
   }),
 
@@ -284,33 +321,104 @@ const toolsHandlers = [
 // 6. Auth
 // ---------------------------------------------------------------------------
 
+const configFor = (account: MockAccount) => ({
+  role: "admin" as const,
+  clientKey: account.clientKey,
+  merchantAccount: account.merchantAccount,
+  environment: "test" as const,
+  isCustom: true,
+  locked: account.locked,
+  apiKeyConfigured: account.apiKeyConfigured,
+  canConfigure: true,
+});
+
 const authHandlers = [
   http.get("/api/auth/config", async () => {
     await delay(100);
-    return HttpResponse.json({
-      role: "im",
-      clientKey: "test_MOCK0000000000000000000000000000000",
-      merchantAccount: "MockMerchantECOM",
-      environment: "test",
-      isCustom: true,
-      locked: false,
-      apiKeyConfigured: true,
-      canConfigure: true,
-    });
+    return HttpResponse.json(configFor(activeAccount()));
   }),
 
-  http.put("/api/auth/config", async () => {
+  http.put("/api/auth/config", async ({ request }) => {
     await delay(200);
-    return HttpResponse.json({
-      role: "im",
-      clientKey: "test_MOCK0000000000000000000000000000000",
-      merchantAccount: "MockMerchantECOM",
-      environment: "test",
-      isCustom: true,
+    const body = (await request.json().catch(() => ({}))) as Partial<MockAccount>;
+    const active = activeAccount();
+    if (body.clientKey) active.clientKey = body.clientKey;
+    if (body.merchantAccount) active.merchantAccount = body.merchantAccount;
+    active.apiKeyConfigured = true;
+    return HttpResponse.json(configFor(active));
+  }),
+
+  // --- Multiple saved company accounts ---
+  http.get("/api/auth/accounts", async () => {
+    await delay(120);
+    return HttpResponse.json({ accounts: mockAccounts.map(toAccountDto) });
+  }),
+
+  http.post("/api/auth/accounts", async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { label?: string; clientKey: string; merchantAccount: string };
+    mockAccountSeq += 1;
+    const account: MockAccount = {
+      id: `acct-${mockAccountSeq}`,
+      label: body.label || "",
+      clientKey: body.clientKey,
+      merchantAccount: body.merchantAccount,
       locked: false,
       apiKeyConfigured: true,
-      canConfigure: true,
-    });
+    };
+    mockAccounts.push(account);
+    if (mockAccounts.length === 1) mockActiveId = account.id;
+    return HttpResponse.json(toAccountDto(account));
+  }),
+
+  http.put("/api/auth/accounts/:id", async ({ params, request }) => {
+    await delay(200);
+    const account = mockAccounts.find((a) => a.id === params.id);
+    if (!account) return HttpResponse.json({ detail: "Account not found" }, { status: 404 });
+    const body = (await request.json()) as { label?: string; clientKey: string; merchantAccount: string };
+    account.label = body.label || "";
+    account.clientKey = body.clientKey;
+    account.merchantAccount = body.merchantAccount;
+    account.apiKeyConfigured = true;
+    return HttpResponse.json(toAccountDto(account));
+  }),
+
+  http.delete("/api/auth/accounts/:id", async ({ params }) => {
+    await delay(150);
+    const index = mockAccounts.findIndex((a) => a.id === params.id);
+    if (index === -1) return HttpResponse.json({ detail: "Account not found" }, { status: 404 });
+    mockAccounts.splice(index, 1);
+    if (mockActiveId === params.id) mockActiveId = mockAccounts[0]?.id ?? "";
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.put("/api/auth/accounts/:id/activate", async ({ params }) => {
+    await delay(150);
+    const account = mockAccounts.find((a) => a.id === params.id);
+    if (!account) return HttpResponse.json({ detail: "Account not found" }, { status: 404 });
+    mockActiveId = account.id;
+    return HttpResponse.json(toAccountDto(account));
+  }),
+];
+
+// ---------------------------------------------------------------------------
+// Admin — user & role management
+// ---------------------------------------------------------------------------
+
+const adminHandlers = [
+  http.get("/api/admin/users", async () => {
+    await delay(150);
+    return HttpResponse.json({ users: mockUsers });
+  }),
+
+  http.put("/api/admin/users/:id/role", async ({ params, request }) => {
+    await delay(200);
+    const body = (await request.json()) as { role: "admin" | "im" | "user" };
+    const user = mockUsers.find((u) => u.userId === params.id);
+    if (user) user.role = body.role;
+    return HttpResponse.json(
+      user ?? { userId: params.id, email: "unknown@adyen.com", role: body.role },
+    );
   }),
 ];
 
@@ -397,6 +505,7 @@ export const handlers = [
   ...fleetHandlers,
   ...toolsHandlers,
   ...authHandlers,
+  ...adminHandlers,
   ...webhookHandlers,
   ...valOtpHandlers,
 ];
