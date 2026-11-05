@@ -759,13 +759,9 @@ a.cb-flowcard { text-decoration: none; color: inherit; }
 /* ---------------------------------------------------------- */
 /* Responsive                                                  */
 /* ---------------------------------------------------------- */
-@media (max-width: 1180px) {
+/* Desktop-only column shrink. Below 1025px the drawer layout above owns the
+   shell, so this must not apply there (it would override the single column). */
+@media (min-width: 1025px) and (max-width: 1180px) {
   .cb-shell { grid-template-columns: 224px minmax(0,1fr) 340px; }
   .cb-shell--no-inspector { grid-template-columns: 224px minmax(0,1fr); }
-}
-@media (max-width: 940px) {
-  .cb-shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-  .cb-rail-col { flex-direction: row; align-items: center; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--cb-line); }
-  .cb-rail-scroll, .cb-brand, .cb-rail-foot { border: 0; }
-  .cb-insp-col { display: none; }
 }
