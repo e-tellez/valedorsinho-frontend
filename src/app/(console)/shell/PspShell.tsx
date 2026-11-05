@@ -57,12 +57,7 @@ export default function PspShell({ children }: { children: React.ReactNode }) {
             )}
           </header>
 
-          <aside className={`cb-rail-col ${navOpen ? "is-open" : ""}`}>
-            <button className="cb-drawer-close" onClick={() => setNavOpen(false)} aria-label="Close navigation">
-              <X size={18} />
-            </button>
-            <LeftRail />
-          </aside>
+          <LeftRail open={navOpen} onClose={() => setNavOpen(false)} />
 
           <main className="cb-main-col">{children}</main>
 

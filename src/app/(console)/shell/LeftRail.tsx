@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid, CreditCard, Smartphone, FileText, CheckSquare,
   Monitor, Package, Nfc, MessageSquare, Pencil, Network, Settings,
-  Wallet, Layers, ShoppingBag, Users, ChevronDown, Sun, Moon, type LucideIcon,
+  Wallet, Layers, ShoppingBag, Users, ChevronDown, Sun, Moon, X, type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { apiFetch } from "@/lib/adyen/api";
@@ -28,7 +28,7 @@ function hrefFor(id: string): string {
   return id === "dashboard" ? "/" : `/${id}`;
 }
 
-export default function LeftRail() {
+export default function LeftRail({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
   const { resolvedTheme, setMode } = useTheme();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -46,7 +46,10 @@ export default function LeftRail() {
   const sections = isAdmin ? [...NAV, ADMIN_SECTION] : NAV;
 
   return (
-    <aside className="cb-rail-col">
+    <aside className={`cb-rail-col ${open ? "is-open" : ""}`}>
+      <button className="cb-drawer-close" onClick={onClose} aria-label="Close navigation">
+        <X size={18} />
+      </button>
       <div className="cb-brand">
         <div className="cb-brand__name">Valedorsinho</div>
         <div className="cb-brand__sub">Adyen Unified Commerce</div>
